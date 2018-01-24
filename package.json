@@ -28,6 +28,7 @@
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "start": "rollup -c rollup.config.js -w",
-    "lint": "tslint -c tslint.json -t verbose 'src/**/*.ts'"
+    "tslint": "tslint -c tslint.json -t verbose 'src/**/*.ts'",
+    "tslint:alone": "tslint -c tslint.json -t verbose"
   }
 }

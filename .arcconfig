@@ -1,0 +1,8 @@
+{
+    "project.name": "yqg-web-cli",
+    "phabricator.uri": "https://code.yangqianguan.com/",
+    "phutil_libraries": {
+        "libcustom": "arcanist/"
+    },
+    "lint.engine": "YqgWebDiffLintEngine"
+}
