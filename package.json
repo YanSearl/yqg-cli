@@ -1,6 +1,6 @@
 {
   "name": "@yqg/cli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "yqg web cli tool",
   "author": "yqg web team",
   "license": "MIT",
@@ -20,7 +20,8 @@
   "bin": {
     "yqg": "bin/yqg",
     "yqg-angular": "bin/yqg-angular",
-    "yqg-vue": "bin/yqg-vue"
+    "yqg-vue": "bin/yqg-vue",
+    "yqg-shell-git-clean-local-branch": "bin/yqg-shell-git-clean-local-branch"
   },
   "scripts": {
     "build": "rollup -c rollup.config.js",
