@@ -1,4 +1,4 @@
 # yqg
-This repo holds yqg fe common cli tools.
+This repo holds yqg web cli tools.
 
 To be continued.
