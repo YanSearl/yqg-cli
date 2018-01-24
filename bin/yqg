@@ -14,5 +14,6 @@ var version = "0.0.1";
  */
 commander
     .version(version)
-    .command('hello', 'Hello World!')
+    .command('angular', 'angular scaffold')
+    .command('vue', 'vue scaffold')
     .parse(process.argv);

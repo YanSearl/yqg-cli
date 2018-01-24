@@ -5,9 +5,10 @@
  */
 
 import commander from 'commander';
-import {version} from '../package.json';
+import {version} from '../../package.json';
 
 commander
     .version(version)
-    .command('hello', 'Hello World!')
+    .command('angular', 'angular scaffold')
+    .command('vue', 'vue scaffold')
     .parse(process.argv);

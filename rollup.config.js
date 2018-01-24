@@ -12,10 +12,11 @@ import typescript from 'rollup-plugin-typescript';
 
 const resolvePath = (...args) => path.resolve(__dirname, ...args);
 
-const inputs = fs.readdirSync(resolvePath('./src'));
+const CMD_PATH = './src/cmd';
+const inputs = fs.readdirSync(resolvePath(CMD_PATH));
 
 export default inputs.map(filename => ({
-    input: `src/${filename}`,
+    input: `${CMD_PATH}/${filename}`,
 
     output: {
         file: `bin/${path.basename(filename, '.ts')}`,
