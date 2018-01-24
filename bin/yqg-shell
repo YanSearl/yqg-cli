@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+'use strict';
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var child_process = require('child_process');
+var path = _interopDefault(require('path'));
+
+/**
+ * @author panezhang
+ * @date 28/12/2017-19:19
+ * @file yqg-angular
+ */
+child_process.execFileSync(path.join(__dirname, './yqg-shell-lib/git-clean-local-branch'), { stdio: 'inherit' });
