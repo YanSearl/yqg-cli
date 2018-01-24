@@ -1,0 +1,29 @@
+{
+  "name": "@yqg/cli",
+  "version": "0.0.1",
+  "description": "yqg web cli tool",
+  "author": "yqg web team",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "2.3.0",
+    "commander": "2.12.2"
+  },
+  "devDependencies": {
+    "@types/node": "9.3.0",
+    "rollup": "0.53.1",
+    "rollup-plugin-json": "2.3.0",
+    "rollup-plugin-typescript": "0.8.1",
+    "tslint": "5.9.1",
+    "tslint-config-airbnb": "5.4.2",
+    "typescript": "2.6.2"
+  },
+  "bin": {
+    "yqg": "bin/yqg",
+    "yqg-hello": "bin/yqg-hello"
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "start": "rollup -c rollup.config.js -w",
+    "lint": "tslint -c tslint.json -t verbose 'src/**/*.ts'"
+  }
+}
