@@ -1,6 +1,6 @@
 {
   "name": "@yqg/cli",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "yqg web cli tool",
   "author": "yqg web team",
   "license": "MIT",
@@ -17,8 +17,11 @@
     "tslint-config-airbnb": "5.4.2",
     "typescript": "2.6.2"
   },
-  "directories": {
-    "bin": "bin"
+  "bin": {
+    "yqg": "bin/yqg",
+    "yqg-angular": "bin/yqg-angular",
+    "yqg-vue": "bin/yqg-vue",
+    "yqg-shell": "bin/yqg-shell"
   },
   "scripts": {
     "build": "rollup -c rollup.config.js",
