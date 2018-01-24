@@ -5,7 +5,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var commander = _interopDefault(require('commander'));
 
-var version = "0.0.6";
+var version = "0.0.8";
 
 /**
  * @author panezhang
@@ -16,4 +16,5 @@ commander
     .version(version)
     .command('angular', 'angular scaffold')
     .command('vue', 'vue scaffold')
+    .command('shell', 'run yqg scripts')
     .parse(process.argv);

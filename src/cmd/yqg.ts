@@ -11,4 +11,5 @@ commander
     .version(version)
     .command('angular', 'angular scaffold')
     .command('vue', 'vue scaffold')
+    .command('shell', 'run yqg scripts')
     .parse(process.argv);
