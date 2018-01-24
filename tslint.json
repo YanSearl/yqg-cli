@@ -5,7 +5,10 @@
   ],
   "jsRules": {},
   "rules": {
-    "object-curly-spacing": [true, "never"]
+    "max-line-length": [true, 120],
+    "object-curly-spacing": [true, "never"],
+    "ter-indent": [true, 4],
+    "trailing-comma": [true, {"multiline": "never", "singleline": "never"}]
   },
   "rulesDirectory": []
 }

@@ -5,10 +5,43 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var child_process = require('child_process');
 var path = _interopDefault(require('path'));
+var chalk = _interopDefault(require('chalk'));
+var prompt = _interopDefault(require('prompt'));
 
 /**
  * @author panezhang
  * @date 28/12/2017-19:19
  * @file yqg-angular
  */
-child_process.execFileSync(path.join(__dirname, './yqg-shell-lib/git-clean-local-branch'), { stdio: 'inherit' });
+var resolveScript = function (filename) { return path.resolve(__dirname, './yqg-shell-lib/', filename); };
+var scripts = [
+    { filename: 'git-clean-local-branch.sh', desc: '清理本地的 release 分支' },
+    { filename: 'git-clean-remote-branch.sh', desc: '清理远程的 release 分支' }
+];
+var hintText = scripts
+    .map(function (script, idx) { return (chalk.yellow(idx + 1) + ". " + chalk.green(script.filename) + " " + script.desc); })
+    .join('\n');
+console.log("\u8BF7\u9009\u62E9\u8981\u6267\u884C\u7684\u811A\u672C\uFF1A\n" + hintText + "\n");
+var schema = {
+    properties: {
+        no: {
+            pattern: /^\d+$/,
+            description: '输入一个序号',
+            message: '只能输入数字',
+            required: true
+        }
+    }
+};
+prompt.start();
+prompt.get(schema, function (err, result) {
+    if (err) {
+        console.error(err);
+        return;
+    }
+    var script = scripts[result.no - 1];
+    if (!script) {
+        console.error("\u5E8F\u53F7\u4E3A " + result.no + " \u7684\u811A\u672C\u4E0D\u5B58\u5728\uFF01");
+        return;
+    }
+    child_process.execFileSync(resolveScript(script.filename), { stdio: 'inherit' });
+});

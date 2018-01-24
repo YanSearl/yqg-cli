@@ -1,12 +1,13 @@
 {
   "name": "@yqg/cli",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "yqg web cli tool",
   "author": "yqg web team",
   "license": "MIT",
   "dependencies": {
     "chalk": "2.3.0",
-    "commander": "2.13.0"
+    "commander": "2.13.0",
+    "prompt": "1.0.0"
   },
   "devDependencies": {
     "@types/node": "9.3.0",
