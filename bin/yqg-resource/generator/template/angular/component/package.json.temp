@@ -1,0 +1,4 @@
+{
+    "name": "<%= hyphenFullName %>",
+    "main": "./<%= hyphenName %>.js"
+}

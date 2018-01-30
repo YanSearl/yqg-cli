@@ -3,18 +3,14 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
+require('@babel/polyfill');
 var commander = _interopDefault(require('commander'));
 
-var version = "0.0.8";
+var version = "0.0.12";
 
 /**
  * @author panezhang
  * @date 28/12/2017-19:19
  * @file yqg
  */
-commander
-    .version(version)
-    .command('angular', 'angular scaffold')
-    .command('vue', 'vue scaffold')
-    .command('shell', 'run yqg scripts')
-    .parse(process.argv);
+commander.version(version).command('angular', 'angular scaffold').command('vue', 'vue scaffold').command('shell', 'run yqg scripts').parse(process.argv);

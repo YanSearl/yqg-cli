@@ -4,4 +4,7 @@
  * @file yqg-angular
  */
 
-console.log('angular scaffold');
+import '@babel/polyfill';
+import generator from '../lib/generator/index'; // tslint:disable-line
+
+generator({framework: 'angular'});

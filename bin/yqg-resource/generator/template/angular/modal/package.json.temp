@@ -1,0 +1,4 @@
+{
+    "name": "<%= hyphenName %>",
+    "main": "./<%= hyphenName %>.component.js"
+}

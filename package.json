@@ -1,21 +1,44 @@
 {
   "name": "@yqg/cli",
-  "version": "0.0.8",
+  "version": "0.0.12",
   "description": "yqg web cli tool",
   "author": "yqg web team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.yangqianguan.com:web/common/yqg-cli.git"
+  },
   "dependencies": {
+    "@babel/polyfill": "7.0.0-beta.39",
     "chalk": "2.3.0",
     "commander": "2.13.0",
-    "prompt": "1.0.0"
+    "git-user-info": "1.0.0",
+    "gulp": "3.9.1",
+    "gulp-rename": "1.2.2",
+    "gulp-template": "5.0.0",
+    "moment": "2.20.1",
+    "prompt": "1.0.0",
+    "strman": "2.0.0"
   },
   "devDependencies": {
-    "@types/node": "9.3.0",
-    "rollup": "0.55.0",
+    "@babel/core": "7.0.0-beta.38",
+    "@babel/preset-env": "7.0.0-beta.38",
+    "@babel/preset-stage-3": "7.0.0-beta.38",
+    "@babel/preset-typescript": "7.0.0-beta.38",
+    "@types/node": "9.4.0",
+    "babel-eslint": "8.2.1",
+    "eslint": "4.16.0",
+    "eslint-config-airbnb": "16.1.0",
+    "eslint-plugin-import": "2.8.0",
+    "eslint-plugin-jsx-a11y": "6.0.3",
+    "eslint-plugin-react": "7.6.1",
+    "rollup": "0.55.1",
+    "rollup-plugin-babel": "4.0.0-beta.0",
+    "rollup-plugin-cleanup": "2.0.0",
     "rollup-plugin-json": "2.3.0",
     "rollup-plugin-typescript": "0.8.1",
     "tslint": "5.9.1",
-    "tslint-config-airbnb": "5.4.2",
+    "tslint-config-airbnb": "5.5.0",
     "typescript": "2.6.2"
   },
   "bin": {
@@ -23,11 +46,13 @@
     "yqg-angular": "bin/yqg-angular",
     "yqg-vue": "bin/yqg-vue",
     "yqg-shell": "bin/yqg-shell",
-    "yqg-shell-lib": "bin/yqg-shell-lib"
+    "yqg-resource": "bin/yqg-resource"
   },
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "start": "rollup -c rollup.config.js -w",
+    "eslint": "eslint rollup.config.js 'src/**/*.js'",
+    "eslint:alone": "eslint",
     "tslint": "tslint -c tslint.json -t verbose 'src/**/*.ts'",
     "tslint:alone": "tslint -c tslint.json -t verbose"
   }

@@ -1,0 +1,14 @@
+<form name="<%= capName %>Form" class="yqg-form-block" novalidate>
+    <yqg-modal
+        title="<%= capName %>"
+        class="<%= hyphenName %>"
+        data-ng-disabled="<%= capName %>Form.$invalid"
+        data-on-confirm="vm.dismissModal()"
+        data-on-cancel="vm.dismissModal()">
+        <yqg-modal-body>
+            <yqg-form-group label="姓名">
+                <input type="text" title="姓名" data-ng-model="">
+            </yqg-form-group>
+        </yqg-modal-body>
+    </yqg-modal>
+</form>

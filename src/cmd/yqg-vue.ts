@@ -4,4 +4,7 @@
  * @file yqg-vue
  */
 
-console.log('vue scaffold');
+import '@babel/polyfill';
+import generator from '../lib/generator/index'; // tslint:disable-line
+
+generator({framework: 'vue'});

@@ -1,9 +1,633 @@
 #!/usr/bin/env node
 'use strict';
 
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var chalk = _interopDefault(require('chalk'));
+var prompt = _interopDefault(require('prompt'));
+var path = require('path');
+var gulp = _interopDefault(require('gulp'));
+var rename = _interopDefault(require('gulp-rename'));
+var template = _interopDefault(require('gulp-template'));
+var gitUserInfo = _interopDefault(require('git-user-info'));
+var strman = require('strman');
+var moment = _interopDefault(require('moment'));
+require('@babel/polyfill');
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+        args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function step(key, arg) {
+        try {
+          var info = gen[key](arg);
+          var value = info.value;
+        } catch (error) {
+          reject(error);
+          return;
+        }
+
+        if (info.done) {
+          resolve(value);
+        } else {
+          Promise.resolve(value).then(_next, _throw);
+        }
+      }
+
+      function _next(value) {
+        step("next", value);
+      }
+
+      function _throw(err) {
+        step("throw", err);
+      }
+
+      _next();
+    });
+  };
+}
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      enumerable: false,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+}
+
+function _possibleConstructorReturn(self, call) {
+  if (call && (typeof call === "object" || typeof call === "function")) {
+    return call;
+  }
+
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+var version = "0.0.12";
+
+var signature = "yqg-cli@".concat(version);
+
+prompt.message = chalk.yellow(signature);
+var prompt$1 = (function (properties) {
+  return new Promise(function (resolve, reject) {
+    prompt.start();
+    prompt.get({
+      properties: properties
+    }, function (err, ret) {
+      return err ? reject(err) : resolve(ret);
+    });
+  });
+});
+
+var _FRAMEWORK_CONF;
+var ANGULAR_TEMPLATE_TYPE = {
+  COMPONENT: 'component',
+  MODAL: 'modal'
+};
+var VUE_TEMPLATE_TYPE = {
+  COMPONENT: 'component',
+  MODAL: 'modal',
+  PROJECT: 'project'
+};
+var FRAMEWORK_TYPE = {
+  ANGULAR: 'angular',
+  VUE: 'vue'
+};
+var FRAMEWORK_CONF = (_FRAMEWORK_CONF = {}, _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.ANGULAR, {
+  TEMPLATE_TYPE: ANGULAR_TEMPLATE_TYPE,
+  TEMPLATE_LIST: Object.values(ANGULAR_TEMPLATE_TYPE)
+}), _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.VUE, {
+  TEMPLATE_TYPE: VUE_TEMPLATE_TYPE,
+  TEMPLATE_LIST: Object.values(VUE_TEMPLATE_TYPE)
+}), _FRAMEWORK_CONF);
+
+var resolveYqgResource = function resolveYqgResource() {
+  for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+  return path.resolve.apply(void 0, [__dirname, './yqg-resource'].concat(args));
+};
+var resolveGeneratorTemplate = function resolveGeneratorTemplate() {
+  for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+    args[_key2] = arguments[_key2];
+  }
+  return resolveYqgResource.apply(void 0, ['./generator/template'].concat(args));
+};
+
+function genFiles (_ref) {
+  var srcPath = _ref.srcPath,
+      destPath = _ref.destPath,
+      renderData = _ref.renderData;
+  var capName = renderData.capName,
+      camelName = renderData.camelName,
+      hyphenName = renderData.hyphenName;
+  return gulp.src(srcPath).pipe(template(renderData)).pipe(rename(function (path$$1) {
+    path$$1.extname = path.extname(path$$1.basename);
+    path$$1.basename = path.basename(path$$1.basename, path$$1.extname).replace('capName', capName).replace('camelName', camelName).replace('hyphenName', hyphenName);
+    console.log("Generating ".concat(path.resolve(destPath, path$$1.dirname), "/").concat(chalk.green(path$$1.basename + path$$1.extname)));
+  })).pipe(gulp.dest(destPath));
+}
+
+function getAuthorInfo () {
+  return _ref.apply(this, arguments);
+}
+function _ref() {
+  _ref = _asyncToGenerator(
+  regeneratorRuntime.mark(function _callee() {
+    var _gitUserInfo, username, email;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _gitUserInfo = gitUserInfo(), username = _gitUserInfo.name, email = _gitUserInfo.email;
+            return _context.abrupt("return", {
+              username: username,
+              email: email
+            });
+          case 2:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return _ref.apply(this, arguments);
+}
+
+function handleName (name, dest) {
+  if (!name) {
+    throw new Error('名称不能为空');
+  }
+  var hyphenName = strman.toKebabCase(name);
+  var camelName = strman.toCamelCase(name);
+  var capName = camelName.charAt(0).toUpperCase() + camelName.slice(1);
+  var hyphenFullName = hyphenName;
+  var camelFullName = camelName;
+  var capFullName = capName;
+  if (dest) {
+    var REG_EXP = /yqd_web_admin\/projects\/(.+)\/src\/fe\/page\/(.+)/;
+    var result = REG_EXP.exec(dest);
+    if (result) {
+      var fullNameArr = result[2].split('/');
+      fullNameArr.push(hyphenName);
+      if (fullNameArr[0].indexOf('yqg') !== 0 && fullNameArr[0].indexOf('hx') !== 0) {
+        fullNameArr.unshift('yqg');
+      }
+      hyphenFullName = fullNameArr.join('-');
+      camelFullName = strman.toCamelCase(hyphenFullName);
+      capFullName = camelFullName.charAt(0).toUpperCase() + camelFullName.slice(1);
+    }
+  }
+  var hyphenShortName = hyphenName.replace(/yqg-/g, '');
+  return {
+    capName: capName,
+    camelName: camelName,
+    hyphenName: hyphenName,
+    capFullName: capFullName,
+    camelFullName: camelFullName,
+    hyphenFullName: hyphenFullName,
+    hyphenShortName: hyphenShortName
+  };
+}
+
+var BaseGenerator =
+function () {
+  function BaseGenerator(_ref) {
+    var framework = _ref.framework,
+        type = _ref.type,
+        name = _ref.name,
+        dest = _ref.dest;
+    _classCallCheck(this, BaseGenerator);
+    Object.assign(this, {
+      framework: framework,
+      type: type,
+      name: name,
+      dest: dest
+    });
+  }
+  _createClass(BaseGenerator, [{
+    key: "getCommonRenderData",
+    value: function () {
+      var _getCommonRenderData = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee() {
+        var timeCreated, name, dest, nameInfo, authorInfo;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                timeCreated = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss.SSS');
+                name = this.name, dest = this.dest;
+                nameInfo = handleName(name, dest);
+                _context.next = 5;
+                return getAuthorInfo();
+              case 5:
+                authorInfo = _context.sent;
+                return _context.abrupt("return", _extends({
+                  signature: signature,
+                  timeCreated: timeCreated
+                }, authorInfo, nameInfo));
+              case 7:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+      return function getCommonRenderData() {
+        return _getCommonRenderData.apply(this, arguments);
+      };
+    }()
+  }, {
+    key: "getExtraRenderData",
+    value: function getExtraRenderData(commonRenderData) {
+    }
+  }, {
+    key: "getTemplateList",
+    value: function getTemplateList(renderData) {
+    }
+  }, {
+    key: "exec",
+    value: function () {
+      var _exec = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee2() {
+        var commonRenderData, extraRenderData, renderData, templateList;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return this.getCommonRenderData();
+              case 2:
+                commonRenderData = _context2.sent;
+                _context2.next = 5;
+                return this.getExtraRenderData(commonRenderData);
+              case 5:
+                extraRenderData = _context2.sent;
+                renderData = _extends({}, commonRenderData, extraRenderData);
+                _context2.next = 9;
+                return this.getTemplateList(renderData);
+              case 9:
+                templateList = _context2.sent;
+                templateList.forEach(function (_ref2) {
+                  var srcPath = _ref2.srcPath,
+                      destPath = _ref2.destPath;
+                  return genFiles({
+                    srcPath: srcPath,
+                    destPath: destPath,
+                    renderData: renderData
+                  });
+                });
+              case 11:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+      return function exec() {
+        return _exec.apply(this, arguments);
+      };
+    }()
+  }]);
+  return BaseGenerator;
+}();
+
+var SUB_PROJECT_REG = /yqd_web_admin\/projects\/([A-Za-z0-9-]+)\/src/;
+var AngularGenerator =
+function (_BaseGenerator) {
+  _inherits(AngularGenerator, _BaseGenerator);
+  function AngularGenerator() {
+    _classCallCheck(this, AngularGenerator);
+    return _possibleConstructorReturn(this, (AngularGenerator.__proto__ || Object.getPrototypeOf(AngularGenerator)).apply(this, arguments));
+  }
+  _createClass(AngularGenerator, [{
+    key: "getExtraRenderData",
+    value: function () {
+      var _getExtraRenderData = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee() {
+        var type, dest, result, appName, _ref, promptAppName, extraRenderData, _ref2, hasResource;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                type = this.type, dest = this.dest;
+                result = SUB_PROJECT_REG.exec(dest);
+                if (!result) {
+                  _context.next = 6;
+                  break;
+                }
+                appName = result[1];
+                _context.next = 11;
+                break;
+              case 6:
+                _context.next = 8;
+                return prompt$1({
+                  promptAppName: {
+                    description: 'Enter project name',
+                    required: true
+                  }
+                });
+              case 8:
+                _ref = _context.sent;
+                promptAppName = _ref.promptAppName;
+                appName = promptAppName;
+              case 11:
+                extraRenderData = {
+                  appName: strman.toCamelCase(appName)
+                };
+                if (!(type === ANGULAR_TEMPLATE_TYPE.COMPONENT)) {
+                  _context.next = 18;
+                  break;
+                }
+                _context.next = 15;
+                return prompt$1({
+                  hasResource: {
+                    description: '是否需要.resource.js文件？(t/f)',
+                    message: '请输入t或者f',
+                    type: 'boolean',
+                    default: 'f',
+                    required: true
+                  }
+                });
+              case 15:
+                _ref2 = _context.sent;
+                hasResource = _ref2.hasResource;
+                Object.assign(extraRenderData, {
+                  hasResource: hasResource
+                });
+              case 18:
+                return _context.abrupt("return", extraRenderData);
+              case 19:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+      return function getExtraRenderData() {
+        return _getExtraRenderData.apply(this, arguments);
+      };
+    }()
+  }, {
+    key: "getTemplateList",
+    value: function getTemplateList(renderData) {
+      var type = this.type,
+          dest = this.dest;
+      var templateList = [];
+      var srcPath = resolveGeneratorTemplate("./angular/".concat(type, "/**/*.**"));
+      var destPath = path.resolve(dest, renderData.hyphenName);
+      templateList.push({
+        srcPath: srcPath,
+        destPath: destPath
+      });
+      if (renderData.hasResource) {
+        var resourceSrcPath = resolveGeneratorTemplate('./angular/component.resource/**/*.**');
+        templateList.push({
+          srcPath: resourceSrcPath,
+          destPath: destPath
+        });
+      }
+      return templateList;
+    }
+  }]);
+  return AngularGenerator;
+}(BaseGenerator);
+
+function handlePort(port) {
+  var digitalPort = parseInt(port, 10);
+  if (Number.isNaN(digitalPort)) {
+    throw new Error('Port should be parsed into number!');
+  }
+  return {
+    port: "".concat(digitalPort),
+    BrowserSyncPort: "".concat(digitalPort + 1),
+    BrowserSyncUIPort: "".concat(digitalPort + 2)
+  };
+}
+var VueGenerator =
+function (_BaseGenerator) {
+  _inherits(VueGenerator, _BaseGenerator);
+  function VueGenerator() {
+    _classCallCheck(this, VueGenerator);
+    return _possibleConstructorReturn(this, (VueGenerator.__proto__ || Object.getPrototypeOf(VueGenerator)).apply(this, arguments));
+  }
+  _createClass(VueGenerator, [{
+    key: "getExtraRenderData",
+    value: function () {
+      var _getExtraRenderData = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee() {
+        var type, _ref, port;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                type = this.type;
+                if (!(type === VUE_TEMPLATE_TYPE.PROJECT)) {
+                  _context.next = 7;
+                  break;
+                }
+                _context.next = 4;
+                return prompt$1({
+                  port: {
+                    description: 'Enter default port',
+                    message: 'Port should not be empty!',
+                    pattern: /^\d+$/,
+                    required: true
+                  }
+                });
+              case 4:
+                _ref = _context.sent;
+                port = _ref.port;
+                return _context.abrupt("return", handlePort(port));
+              case 7:
+                return _context.abrupt("return", null);
+              case 8:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+      return function getExtraRenderData() {
+        return _getExtraRenderData.apply(this, arguments);
+      };
+    }()
+  }, {
+    key: "getTemplateList",
+    value: function getTemplateList(renderData) {
+      var type = this.type,
+          dest = this.dest;
+      var templateList = [];
+      var srcPath = resolveGeneratorTemplate("./vue/".concat(type, "/**/*.**"));
+      var destPath = path.resolve(dest, renderData.hyphenName);
+      templateList.push({
+        srcPath: srcPath,
+        destPath: destPath
+      });
+      return templateList;
+    }
+  }]);
+  return VueGenerator;
+}(BaseGenerator);
+
+var _GENERATOR_MAP;
+var GENERATOR_MAP = (_GENERATOR_MAP = {}, _defineProperty(_GENERATOR_MAP, FRAMEWORK_TYPE.ANGULAR, AngularGenerator), _defineProperty(_GENERATOR_MAP, FRAMEWORK_TYPE.VUE, VueGenerator), _GENERATOR_MAP);
+var generator = (function () {
+  var _ref2 = _asyncToGenerator(
+  regeneratorRuntime.mark(function _callee(_ref) {
+    var framework, CONF, TEMPLATE_LIST, templateListText, _ref3, typeIndex, type, _ref4, name, dest, Generator, generator;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            framework = _ref.framework;
+            CONF = FRAMEWORK_CONF[framework];
+            if (CONF) {
+              _context.next = 5;
+              break;
+            }
+            console.log(chalk.red("Unknown framework: ".concat(framework)));
+            return _context.abrupt("return");
+          case 5:
+            TEMPLATE_LIST = CONF.TEMPLATE_LIST;
+            templateListText = TEMPLATE_LIST.map(function (templateName, index) {
+              return "".concat(chalk.yellow(index + 1), ". ").concat(chalk.green(templateName));
+            }).join('\n');
+            _context.next = 9;
+            return prompt$1({
+              typeIndex: {
+                description: "\n".concat(templateListText, "\nSelect a template\uFF08Enter a number\uFF09"),
+                default: '1',
+                pattern: /^\d+$/,
+                required: true
+              }
+            });
+          case 9:
+            _ref3 = _context.sent;
+            typeIndex = _ref3.typeIndex;
+            type = TEMPLATE_LIST[typeIndex - 1];
+            if (type) {
+              _context.next = 15;
+              break;
+            }
+            console.log(chalk.red("Unknown type: ".concat(type)));
+            return _context.abrupt("return");
+          case 15:
+            _context.next = 17;
+            return prompt$1({
+              name: {
+                description: 'Enter target name [such as foo-bar]',
+                message: 'Target name should not be empty!',
+                type: 'string',
+                required: true
+              },
+              dest: {
+                description: 'Enter dest path',
+                type: 'string',
+                default: process.cwd(),
+                required: true
+              }
+            });
+          case 17:
+            _ref4 = _context.sent;
+            name = _ref4.name;
+            dest = _ref4.dest;
+            console.log(chalk.grey("Will generate ".concat(framework, " ").concat(type, " ").concat(name, " at ").concat(dest)));
+            Generator = GENERATOR_MAP[framework];
+            generator = new Generator({
+              framework: framework,
+              type: type,
+              name: name,
+              dest: dest
+            });
+            generator.exec();
+          case 24:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return function (_x) {
+    return _ref2.apply(this, arguments);
+  };
+})();
+
 /**
  * @author panezhang
  * @date 28/12/2017-19:19
  * @file yqg-angular
  */
-console.log('angular scaffold');
+generator({
+  framework: 'angular'
+});

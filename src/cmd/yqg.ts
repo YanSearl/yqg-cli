@@ -4,7 +4,9 @@
  * @file yqg
  */
 
+import '@babel/polyfill';
 import commander from 'commander';
+
 import {version} from '../../package.json';
 
 commander

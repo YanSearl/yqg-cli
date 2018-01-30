@@ -1,0 +1,12 @@
+{
+  "name": "<%= hyphenName %>",
+  "version": "0.0.1",
+  "scripts": {
+    "clean": "babel-node ../../tools/run yqg-vue/clean --project <%= hyphenName %>",
+    "copy": "babel-node ../../tools/run yqg-vue/copy --project <%= hyphenName %>",
+    "bundle": "babel-node ../../tools/run yqg-vue/bundle --project <%= hyphenName %>",
+    "build": "babel-node ../../tools/run yqg-vue/build --project <%= hyphenName %>",
+    "start": "babel-node ../../tools/run yqg-vue/start --project <%= hyphenName %>",
+    "prestart": "../../tools/shell/pre-start-hook.sh"
+  }
+}

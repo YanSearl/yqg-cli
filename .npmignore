@@ -1,7 +1,14 @@
-src
-rollup.config.js
+/arcanist
+/src
 
-.idea
+.arcconfig
+.babelrc
 .editorconfig
+.eslintrc
 .nvmrc
+
+rollup.config.js
 tslint.json
+
+# IDE
+.idea

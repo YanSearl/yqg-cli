@@ -1,0 +1,4 @@
+<div class="<%= hyphenFullName %>">
+    <h3>{{ ::vm.name }}</h3>
+    <hr/>
+</div>

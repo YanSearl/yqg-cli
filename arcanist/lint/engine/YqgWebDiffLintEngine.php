@@ -27,28 +27,19 @@ class YqgWebDiffLintEngine extends ArcanistLintEngine
       }
     }
 
-    $jsPaths = preg_grep('/\.ts$/', $paths);
+    $tsPaths = preg_grep('/\.ts$/', $paths);
     $command = '';
+    if (count($tsPaths) > 0) {
+      $command .= 'npm run tslint:alone ' . join(' ', $tsPaths);
+    }
+
+    $jsPaths = preg_grep('/\.js$/', $paths);
     if (count($jsPaths) > 0) {
-      $command .= 'npm run tslint:alone ' . join(' ', $jsPaths);
-    }
-
-    $scssPaths = preg_grep('/\.scss$/', $paths);
-    if (count($scssPaths) > 0) {
       if (strlen($command)) {
         $command .= ' && ';
       }
 
-      $command .= 'npm run stylelint:alone ' . join(' ', $scssPaths);
-    }
-
-    $cssPaths = preg_grep('/\.css$/', $paths);
-    if (count($cssPaths) > 0) {
-      if (strlen($command)) {
-        $command .= ' && ';
-      }
-
-      $command .= 'npm run csslint:alone ' . join(' ', $cssPaths);
+      $command .= 'npm run eslint:alone ' . join(' ', $jsPaths);
     }
 
     $root = $this->getWorkingCopy()->getProjectRoot();

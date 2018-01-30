@@ -7,8 +7,9 @@
 import fs from 'fs';
 import path from 'path';
 
+import babel from 'rollup-plugin-babel';
 import json from 'rollup-plugin-json';
-import typescript from 'rollup-plugin-typescript';
+import cleanup from 'rollup-plugin-cleanup';
 
 const resolvePath = (...args) => path.resolve(__dirname, ...args);
 
@@ -26,6 +27,7 @@ export default inputs.map(filename => ({
 
     plugins: [
         json(),
-        typescript()
+        babel(),
+        cleanup({comments: 'none'})
     ]
 }));
