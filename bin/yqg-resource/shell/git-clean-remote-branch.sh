@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # 获取脚本所在的文件夹路径
-dir=$(cd $(dirname $0) && pwd)
+dir=$(cd $(dirname $0)/../script && pwd)
 
 function find_branches_to_be_deleted() {
     git branch -avv \

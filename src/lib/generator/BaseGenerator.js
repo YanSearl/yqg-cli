@@ -35,12 +35,14 @@ export default class BaseGenerator {
         };
     }
 
-    getExtraRenderData(commonRenderData) { // eslint-disable-line
+    async getExtraRenderData(commonRenderData) { // eslint-disable-line
         // to be override
+        return {};
     }
 
-    getTemplateList(renderData) { // eslint-disable-line
+    async getTemplateList(renderData) { // eslint-disable-line
         // to be override
+        return [];
     }
 
     async exec() {
@@ -48,7 +50,12 @@ export default class BaseGenerator {
         const extraRenderData = await this.getExtraRenderData(commonRenderData);
         const renderData = {...commonRenderData, ...extraRenderData};
         const templateList = await this.getTemplateList(renderData);
-        templateList.forEach(({srcPath, destPath}) => genFiles({srcPath, destPath, renderData}));
+        await Promise.all(templateList.map(({srcPath, destPath}) => genFiles({srcPath, destPath, renderData})));
+        await this.onFinish(renderData);
+    }
+
+    async onFinish(renderData) { // eslint-disable-line
+        // to be override
     }
 
 }

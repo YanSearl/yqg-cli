@@ -3,13 +3,26 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
+var path = require('path');
 var chalk = _interopDefault(require('chalk'));
 var prompt = _interopDefault(require('prompt'));
 var child_process = require('child_process');
-var path = _interopDefault(require('path'));
 require('@babel/polyfill');
 
-var version = "0.0.12";
+var resolveYqgResource = function resolveYqgResource() {
+  for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+    args[_key] = arguments[_key];
+  }
+  return path.resolve.apply(void 0, [__dirname, './yqg-resource'].concat(args));
+};
+var resolveYqgShell = function resolveYqgShell() {
+  for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+    args[_key3] = arguments[_key3];
+  }
+  return resolveYqgResource.apply(void 0, ['./shell'].concat(args));
+};
+
+var version = "0.0.14";
 
 var signature = "yqg-cli@".concat(version);
 
@@ -30,10 +43,6 @@ var prompt$1 = (function (properties) {
  * @date 28/12/2017-19:19
  * @file yqg-angular
  */
-var resolveScript = function resolveScript(filename) {
-  return path.resolve(__dirname, './yqg-resource/shell', filename);
-};
-
 var scripts$1 = [{
   filename: 'git-clean-local-branch.sh',
   desc: '清理本地的 release 分支'
@@ -61,7 +70,7 @@ prompt$1(properties).then(function (result) {
     return;
   }
 
-  child_process.execFileSync(resolveScript(script.filename), {
+  child_process.execFileSync(resolveYqgShell(script.filename), {
     stdio: 'inherit'
   });
 }).catch(console.error);

@@ -15,7 +15,7 @@ import template from 'gulp-template';
 
 export default function ({srcPath, destPath, renderData}) {
     const {capName, camelName, hyphenName} = renderData;
-    return gulp.src(srcPath)
+    return new Promise(resolvePromise => gulp.src(srcPath)
         .pipe(template(renderData))
         .pipe(rename((path) => {
             path.extname = extname(path.basename);
@@ -25,5 +25,6 @@ export default function ({srcPath, destPath, renderData}) {
                 .replace('hyphenName', hyphenName);
             console.log(`Generating ${resolve(destPath, path.dirname)}/${chalk.green(path.basename + path.extname)}`);
         }))
-        .pipe(gulp.dest(destPath));
+        .pipe(gulp.dest(destPath))
+        .on('end', resolvePromise));
 }

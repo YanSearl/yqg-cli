@@ -10,9 +10,14 @@ export const ANGULAR_TEMPLATE_TYPE = {
 };
 
 export const VUE_TEMPLATE_TYPE = {
-    COMPONENT: 'component',
-    MODAL: 'modal',
-    PROJECT: 'project'
+    COMPONENT: 'component-single',
+    COMPONENT_SEPARATED: 'component-separated',
+    MODAL: 'modal-base-ui',
+    MODAL_CL: 'modal-cl',
+    MODAL_EC: 'modal-ec',
+    MODEL_MUSE: 'modal-muse',
+    PROJECT: 'project',
+    PROJECT_USER: 'project-user'
 };
 
 export const FRAMEWORK_TYPE = {

@@ -7,14 +7,26 @@
 import chalk from 'chalk';
 
 import prompt from '../prompt';
-import {FRAMEWORK_TYPE, FRAMEWORK_CONF} from './constant';
+import {FRAMEWORK_TYPE, FRAMEWORK_CONF, ANGULAR_TEMPLATE_TYPE, VUE_TEMPLATE_TYPE} from './constant';
 
 import AngularGenerator from './AngularGenerator';
-import VueGenerator from './VueGenerator';
+import AngularComponentGenerator from './AngularComponentGenerator';
 
-const GENERATOR_MAP = {
-    [FRAMEWORK_TYPE.ANGULAR]: AngularGenerator,
-    [FRAMEWORK_TYPE.VUE]: VueGenerator
+import VueGenerator from './VueGenerator';
+import VueProjectGenerator from './VueProjectGenerator';
+import VueProjectUserGenerator from './VueProjectUserGenerator';
+
+const GENERATOR_CONF = {
+    [FRAMEWORK_TYPE.ANGULAR]: {
+        [ANGULAR_TEMPLATE_TYPE.COMPONENT]: AngularComponentGenerator,
+        default: AngularGenerator
+    },
+
+    [FRAMEWORK_TYPE.VUE]: {
+        [VUE_TEMPLATE_TYPE.PROJECT]: VueProjectGenerator,
+        [VUE_TEMPLATE_TYPE.PROJECT_USER]: VueProjectUserGenerator,
+        default: VueGenerator
+    }
 };
 
 /**
@@ -38,14 +50,13 @@ export default async ({framework}) => {
 
     const {typeIndex} = await prompt({
         typeIndex: {
-            description: `\n${templateListText}\nSelect a template（Enter a number）`,
+            description: `\n${templateListText}\nSelect a template（Enter a number or name）`,
             default: '1',
-            pattern: /^\d+$/,
             required: true
         }
     });
 
-    const type = TEMPLATE_LIST[typeIndex - 1];
+    const type = TEMPLATE_LIST.includes(typeIndex) ? typeIndex : TEMPLATE_LIST[typeIndex - 1];
     if (!type) {
         console.log(chalk.red(`Unknown type: ${type}`));
         return;
@@ -69,7 +80,8 @@ export default async ({framework}) => {
     });
 
     console.log(chalk.grey(`Will generate ${framework} ${type} ${name} at ${dest}`));
-    const Generator = GENERATOR_MAP[framework];
+    const GENERATOR_MAP = GENERATOR_CONF[framework];
+    const Generator = GENERATOR_MAP[type] || GENERATOR_MAP.default;
     const generator = new Generator({framework, type, name, dest}); // 将来可以灵活的根据 framework, type 选择不同的子类
     generator.exec();
 };

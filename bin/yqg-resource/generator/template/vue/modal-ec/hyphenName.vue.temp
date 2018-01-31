@@ -1,0 +1,3 @@
+<template src="./<%= hyphenName %>.html"></template>
+<script src="./<%= hyphenName %>.js"></script>
+<style src="./<%= hyphenName %>.scss" lang="scss"></style>

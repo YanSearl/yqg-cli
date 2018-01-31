@@ -105,6 +105,31 @@ function _extends() {
   return _extends.apply(this, arguments);
 }
 
+function _get(object, property, receiver) {
+  if (object === null) object = Function.prototype;
+  var desc = Object.getOwnPropertyDescriptor(object, property);
+
+  if (desc === undefined) {
+    var parent = Object.getPrototypeOf(object);
+
+    if (parent === null) {
+      return undefined;
+    } else {
+      return _get(parent, property, receiver);
+    }
+  } else if ("value" in desc) {
+    return desc.value;
+  } else {
+    var getter = desc.get;
+
+    if (getter === undefined) {
+      return undefined;
+    }
+
+    return getter.call(receiver);
+  }
+}
+
 function _inherits(subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
     throw new TypeError("Super expression must either be null or a function");
@@ -133,7 +158,7 @@ function _possibleConstructorReturn(self, call) {
   return self;
 }
 
-var version = "0.0.12";
+var version = "0.0.14";
 
 var signature = "yqg-cli@".concat(version);
 
@@ -155,9 +180,14 @@ var ANGULAR_TEMPLATE_TYPE = {
   MODAL: 'modal'
 };
 var VUE_TEMPLATE_TYPE = {
-  COMPONENT: 'component',
-  MODAL: 'modal',
-  PROJECT: 'project'
+  COMPONENT: 'component-single',
+  COMPONENT_SEPARATED: 'component-separated',
+  MODAL: 'modal-base-ui',
+  MODAL_CL: 'modal-cl',
+  MODAL_EC: 'modal-ec',
+  MODEL_MUSE: 'modal-muse',
+  PROJECT: 'project',
+  PROJECT_USER: 'project-user'
 };
 var FRAMEWORK_TYPE = {
   ANGULAR: 'angular',
@@ -178,8 +208,8 @@ var resolveYqgResource = function resolveYqgResource() {
   return path.resolve.apply(void 0, [__dirname, './yqg-resource'].concat(args));
 };
 var resolveGeneratorTemplate = function resolveGeneratorTemplate() {
-  for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-    args[_key2] = arguments[_key2];
+  for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+    args[_key4] = arguments[_key4];
   }
   return resolveYqgResource.apply(void 0, ['./generator/template'].concat(args));
 };
@@ -191,11 +221,13 @@ function genFiles (_ref) {
   var capName = renderData.capName,
       camelName = renderData.camelName,
       hyphenName = renderData.hyphenName;
-  return gulp.src(srcPath).pipe(template(renderData)).pipe(rename(function (path$$1) {
-    path$$1.extname = path.extname(path$$1.basename);
-    path$$1.basename = path.basename(path$$1.basename, path$$1.extname).replace('capName', capName).replace('camelName', camelName).replace('hyphenName', hyphenName);
-    console.log("Generating ".concat(path.resolve(destPath, path$$1.dirname), "/").concat(chalk.green(path$$1.basename + path$$1.extname)));
-  })).pipe(gulp.dest(destPath));
+  return new Promise(function (resolvePromise) {
+    return gulp.src(srcPath).pipe(template(renderData)).pipe(rename(function (path$$1) {
+      path$$1.extname = path.extname(path$$1.basename);
+      path$$1.basename = path.basename(path$$1.basename, path$$1.extname).replace('capName', capName).replace('camelName', camelName).replace('hyphenName', hyphenName);
+      console.log("Generating ".concat(path.resolve(destPath, path$$1.dirname), "/").concat(chalk.green(path$$1.basename + path$$1.extname)));
+    })).pipe(gulp.dest(destPath)).on('end', resolvePromise);
+  });
 }
 
 function getAuthorInfo () {
@@ -309,36 +341,71 @@ function () {
     }()
   }, {
     key: "getExtraRenderData",
-    value: function getExtraRenderData(commonRenderData) {
-    }
-  }, {
-    key: "getTemplateList",
-    value: function getTemplateList(renderData) {
-    }
-  }, {
-    key: "exec",
     value: function () {
-      var _exec = _asyncToGenerator(
-      regeneratorRuntime.mark(function _callee2() {
-        var commonRenderData, extraRenderData, renderData, templateList;
+      var _getExtraRenderData = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee2(commonRenderData) {
         return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
-                _context2.next = 2;
+                return _context2.abrupt("return", {});
+              case 1:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+      return function getExtraRenderData(_x) {
+        return _getExtraRenderData.apply(this, arguments);
+      };
+    }()
+  }, {
+    key: "getTemplateList",
+    value: function () {
+      var _getTemplateList = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee3(renderData) {
+        return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                return _context3.abrupt("return", []);
+              case 1:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3, this);
+      }));
+      return function getTemplateList(_x2) {
+        return _getTemplateList.apply(this, arguments);
+      };
+    }()
+  }, {
+    key: "exec",
+    value: function () {
+      var _exec = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee4() {
+        var commonRenderData, extraRenderData, renderData, templateList;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _context4.next = 2;
                 return this.getCommonRenderData();
               case 2:
-                commonRenderData = _context2.sent;
-                _context2.next = 5;
+                commonRenderData = _context4.sent;
+                _context4.next = 5;
                 return this.getExtraRenderData(commonRenderData);
               case 5:
-                extraRenderData = _context2.sent;
+                extraRenderData = _context4.sent;
                 renderData = _extends({}, commonRenderData, extraRenderData);
-                _context2.next = 9;
+                _context4.next = 9;
                 return this.getTemplateList(renderData);
               case 9:
-                templateList = _context2.sent;
-                templateList.forEach(function (_ref2) {
+                templateList = _context4.sent;
+                _context4.next = 12;
+                return Promise.all(templateList.map(function (_ref2) {
                   var srcPath = _ref2.srcPath,
                       destPath = _ref2.destPath;
                   return genFiles({
@@ -346,16 +413,38 @@ function () {
                     destPath: destPath,
                     renderData: renderData
                   });
-                });
-              case 11:
+                }));
+              case 12:
+                _context4.next = 14;
+                return this.onFinish(renderData);
+              case 14:
               case "end":
-                return _context2.stop();
+                return _context4.stop();
             }
           }
-        }, _callee2, this);
+        }, _callee4, this);
       }));
       return function exec() {
         return _exec.apply(this, arguments);
+      };
+    }()
+  }, {
+    key: "onFinish",
+    value: function () {
+      var _onFinish = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee5(renderData) {
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, this);
+      }));
+      return function onFinish(_x3) {
+        return _onFinish.apply(this, arguments);
       };
     }()
   }]);
@@ -375,12 +464,12 @@ function (_BaseGenerator) {
     value: function () {
       var _getExtraRenderData = _asyncToGenerator(
       regeneratorRuntime.mark(function _callee() {
-        var type, dest, result, appName, _ref, promptAppName, extraRenderData, _ref2, hasResource;
+        var dest, result, appName, _ref, promptAppName;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                type = this.type, dest = this.dest;
+                dest = this.dest;
                 result = SUB_PROJECT_REG.exec(dest);
                 if (!result) {
                   _context.next = 6;
@@ -402,32 +491,10 @@ function (_BaseGenerator) {
                 promptAppName = _ref.promptAppName;
                 appName = promptAppName;
               case 11:
-                extraRenderData = {
+                return _context.abrupt("return", {
                   appName: strman.toCamelCase(appName)
-                };
-                if (!(type === ANGULAR_TEMPLATE_TYPE.COMPONENT)) {
-                  _context.next = 18;
-                  break;
-                }
-                _context.next = 15;
-                return prompt$1({
-                  hasResource: {
-                    description: '是否需要.resource.js文件？(t/f)',
-                    message: '请输入t或者f',
-                    type: 'boolean',
-                    default: 'f',
-                    required: true
-                  }
                 });
-              case 15:
-                _ref2 = _context.sent;
-                hasResource = _ref2.hasResource;
-                Object.assign(extraRenderData, {
-                  hasResource: hasResource
-                });
-              case 18:
-                return _context.abrupt("return", extraRenderData);
-              case 19:
+              case 12:
               case "end":
                 return _context.stop();
             }
@@ -440,27 +507,165 @@ function (_BaseGenerator) {
     }()
   }, {
     key: "getTemplateList",
-    value: function getTemplateList(renderData) {
-      var type = this.type,
-          dest = this.dest;
-      var templateList = [];
-      var srcPath = resolveGeneratorTemplate("./angular/".concat(type, "/**/*.**"));
-      var destPath = path.resolve(dest, renderData.hyphenName);
-      templateList.push({
-        srcPath: srcPath,
-        destPath: destPath
-      });
-      if (renderData.hasResource) {
-        var resourceSrcPath = resolveGeneratorTemplate('./angular/component.resource/**/*.**');
-        templateList.push({
-          srcPath: resourceSrcPath,
-          destPath: destPath
-        });
-      }
-      return templateList;
-    }
+    value: function () {
+      var _getTemplateList = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee2(renderData) {
+        var type, dest, templateList, srcPath, destPath;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                type = this.type, dest = this.dest;
+                templateList = [];
+                srcPath = resolveGeneratorTemplate("./angular/".concat(type, "/**/*.**"));
+                destPath = path.resolve(dest, renderData.hyphenName);
+                templateList.push({
+                  srcPath: srcPath,
+                  destPath: destPath
+                });
+                return _context2.abrupt("return", templateList);
+              case 6:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+      return function getTemplateList(_x) {
+        return _getTemplateList.apply(this, arguments);
+      };
+    }()
   }]);
   return AngularGenerator;
+}(BaseGenerator);
+
+var AngularComponentGenerator =
+function (_AngularGenerator) {
+  _inherits(AngularComponentGenerator, _AngularGenerator);
+  function AngularComponentGenerator() {
+    _classCallCheck(this, AngularComponentGenerator);
+    return _possibleConstructorReturn(this, (AngularComponentGenerator.__proto__ || Object.getPrototypeOf(AngularComponentGenerator)).apply(this, arguments));
+  }
+  _createClass(AngularComponentGenerator, [{
+    key: "getExtraRenderData",
+    value: function () {
+      var _getExtraRenderData = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee(commonRenderData) {
+        var extraRenderData, _ref, hasResource;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return _get(AngularComponentGenerator.prototype.__proto__ || Object.getPrototypeOf(AngularComponentGenerator.prototype), "getExtraRenderData", this).call(this, commonRenderData);
+              case 2:
+                extraRenderData = _context.sent;
+                _context.next = 5;
+                return prompt$1({
+                  hasResource: {
+                    description: '是否需要.resource.js文件？(t/f)',
+                    message: '请输入t或者f',
+                    type: 'boolean',
+                    default: 'f',
+                    required: true
+                  }
+                });
+              case 5:
+                _ref = _context.sent;
+                hasResource = _ref.hasResource;
+                Object.assign(extraRenderData, {
+                  hasResource: hasResource
+                });
+                return _context.abrupt("return", extraRenderData);
+              case 9:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+      return function getExtraRenderData(_x) {
+        return _getExtraRenderData.apply(this, arguments);
+      };
+    }()
+  }, {
+    key: "getTemplateList",
+    value: function () {
+      var _getTemplateList = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee2(renderData) {
+        var templateList, dest, srcPath, destPath;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.next = 2;
+                return _get(AngularComponentGenerator.prototype.__proto__ || Object.getPrototypeOf(AngularComponentGenerator.prototype), "getTemplateList", this).call(this, renderData);
+              case 2:
+                templateList = _context2.sent;
+                if (renderData.hasResource) {
+                  dest = this.dest;
+                  srcPath = resolveGeneratorTemplate('./angular/component.resource/**/*.**');
+                  destPath = path.resolve(dest, renderData.hyphenName);
+                  templateList.push({
+                    srcPath: srcPath,
+                    destPath: destPath
+                  });
+                }
+                return _context2.abrupt("return", templateList);
+              case 5:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+      return function getTemplateList(_x2) {
+        return _getTemplateList.apply(this, arguments);
+      };
+    }()
+  }]);
+  return AngularComponentGenerator;
+}(AngularGenerator);
+
+var VueGenerator =
+function (_BaseGenerator) {
+  _inherits(VueGenerator, _BaseGenerator);
+  function VueGenerator() {
+    _classCallCheck(this, VueGenerator);
+    return _possibleConstructorReturn(this, (VueGenerator.__proto__ || Object.getPrototypeOf(VueGenerator)).apply(this, arguments));
+  }
+  _createClass(VueGenerator, [{
+    key: "getTemplateList",
+    value: function () {
+      var _getTemplateList = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee(renderData) {
+        var type, dest, templateList, srcPath, destPath;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                type = this.type, dest = this.dest;
+                templateList = [];
+                srcPath = resolveGeneratorTemplate("./vue/".concat(type, "/**/*.**"));
+                destPath = path.resolve(dest, renderData.hyphenName);
+                templateList.push({
+                  srcPath: srcPath,
+                  destPath: destPath
+                });
+                return _context.abrupt("return", templateList);
+              case 6:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+      return function getTemplateList(_x) {
+        return _getTemplateList.apply(this, arguments);
+      };
+    }()
+  }]);
+  return VueGenerator;
 }(BaseGenerator);
 
 function handlePort(port) {
@@ -474,29 +679,28 @@ function handlePort(port) {
     BrowserSyncUIPort: "".concat(digitalPort + 2)
   };
 }
-var VueGenerator =
-function (_BaseGenerator) {
-  _inherits(VueGenerator, _BaseGenerator);
-  function VueGenerator() {
-    _classCallCheck(this, VueGenerator);
-    return _possibleConstructorReturn(this, (VueGenerator.__proto__ || Object.getPrototypeOf(VueGenerator)).apply(this, arguments));
+var VueProjectGenerator =
+function (_VueGenerator) {
+  _inherits(VueProjectGenerator, _VueGenerator);
+  function VueProjectGenerator() {
+    _classCallCheck(this, VueProjectGenerator);
+    return _possibleConstructorReturn(this, (VueProjectGenerator.__proto__ || Object.getPrototypeOf(VueProjectGenerator)).apply(this, arguments));
   }
-  _createClass(VueGenerator, [{
+  _createClass(VueProjectGenerator, [{
     key: "getExtraRenderData",
     value: function () {
       var _getExtraRenderData = _asyncToGenerator(
-      regeneratorRuntime.mark(function _callee() {
-        var type, _ref, port;
+      regeneratorRuntime.mark(function _callee(commonRenderData) {
+        var extraRenderData, _ref, port;
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                type = this.type;
-                if (!(type === VUE_TEMPLATE_TYPE.PROJECT)) {
-                  _context.next = 7;
-                  break;
-                }
-                _context.next = 4;
+                _context.next = 2;
+                return _get(VueProjectGenerator.prototype.__proto__ || Object.getPrototypeOf(VueProjectGenerator.prototype), "getExtraRenderData", this).call(this, commonRenderData);
+              case 2:
+                extraRenderData = _context.sent;
+                _context.next = 5;
                 return prompt$1({
                   port: {
                     description: 'Enter default port',
@@ -505,47 +709,114 @@ function (_BaseGenerator) {
                     required: true
                   }
                 });
-              case 4:
+              case 5:
                 _ref = _context.sent;
                 port = _ref.port;
-                return _context.abrupt("return", handlePort(port));
-              case 7:
-                return _context.abrupt("return", null);
-              case 8:
+                Object.assign(extraRenderData, handlePort(port));
+                return _context.abrupt("return", extraRenderData);
+              case 9:
               case "end":
                 return _context.stop();
             }
           }
         }, _callee, this);
       }));
-      return function getExtraRenderData() {
+      return function getExtraRenderData(_x) {
+        return _getExtraRenderData.apply(this, arguments);
+      };
+    }()
+  }]);
+  return VueProjectGenerator;
+}(VueGenerator);
+
+var VueProjectUserGenerator =
+function (_VueGenerator) {
+  _inherits(VueProjectUserGenerator, _VueGenerator);
+  function VueProjectUserGenerator() {
+    _classCallCheck(this, VueProjectUserGenerator);
+    return _possibleConstructorReturn(this, (VueProjectUserGenerator.__proto__ || Object.getPrototypeOf(VueProjectUserGenerator)).apply(this, arguments));
+  }
+  _createClass(VueProjectUserGenerator, [{
+    key: "getExtraRenderData",
+    value: function () {
+      var _getExtraRenderData = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee(commonRenderData) {
+        var extraRenderData, _ref, port;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return _get(VueProjectUserGenerator.prototype.__proto__ || Object.getPrototypeOf(VueProjectUserGenerator.prototype), "getExtraRenderData", this).call(this, commonRenderData);
+              case 2:
+                extraRenderData = _context.sent;
+                _context.next = 5;
+                return prompt$1({
+                  port: {
+                    description: 'Enter default port',
+                    message: 'Port should not be empty!',
+                    pattern: /^\d+$/,
+                    required: true
+                  }
+                });
+              case 5:
+                _ref = _context.sent;
+                port = _ref.port;
+                Object.assign(extraRenderData, {
+                  port: port
+                });
+                return _context.abrupt("return", extraRenderData);
+              case 9:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+      return function getExtraRenderData(_x) {
         return _getExtraRenderData.apply(this, arguments);
       };
     }()
   }, {
-    key: "getTemplateList",
-    value: function getTemplateList(renderData) {
-      var type = this.type,
-          dest = this.dest;
-      var templateList = [];
-      var srcPath = resolveGeneratorTemplate("./vue/".concat(type, "/**/*.**"));
-      var destPath = path.resolve(dest, renderData.hyphenName);
-      templateList.push({
-        srcPath: srcPath,
-        destPath: destPath
-      });
-      return templateList;
-    }
+    key: "onFinish",
+    value: function () {
+      var _onFinish = _asyncToGenerator(
+      regeneratorRuntime.mark(function _callee2(renderData) {
+        var hyphenName, port, defaultConfig;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                hyphenName = renderData.hyphenName, port = renderData.port;
+                defaultConfig = "'".concat(hyphenName, "': {port: ").concat(port, ", apiHost: 'https://'}");
+                console.log("Project ".concat(hyphenName, " was generated successfully. Please add blow text to proper file."));
+                console.log("\n- config/default.js\n  ".concat(defaultConfig));
+                console.log("\n- gulp.babel.js\n  addYqgVueSPA('".concat(hyphenName, "');"));
+                _context2.next = 7;
+                return _get(VueProjectUserGenerator.prototype.__proto__ || Object.getPrototypeOf(VueProjectUserGenerator.prototype), "onFinish", this).call(this, renderData);
+              case 7:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+      return function onFinish(_x2) {
+        return _onFinish.apply(this, arguments);
+      };
+    }()
   }]);
-  return VueGenerator;
-}(BaseGenerator);
+  return VueProjectUserGenerator;
+}(VueGenerator);
 
-var _GENERATOR_MAP;
-var GENERATOR_MAP = (_GENERATOR_MAP = {}, _defineProperty(_GENERATOR_MAP, FRAMEWORK_TYPE.ANGULAR, AngularGenerator), _defineProperty(_GENERATOR_MAP, FRAMEWORK_TYPE.VUE, VueGenerator), _GENERATOR_MAP);
+var _FRAMEWORK_TYPE$ANGUL;
+var _FRAMEWORK_TYPE$VUE;
+var _GENERATOR_CONF;
+var GENERATOR_CONF = (_GENERATOR_CONF = {}, _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE.ANGULAR, (_FRAMEWORK_TYPE$ANGUL = {}, _defineProperty(_FRAMEWORK_TYPE$ANGUL, ANGULAR_TEMPLATE_TYPE.COMPONENT, AngularComponentGenerator), _defineProperty(_FRAMEWORK_TYPE$ANGUL, "default", AngularGenerator), _FRAMEWORK_TYPE$ANGUL)), _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE.VUE, (_FRAMEWORK_TYPE$VUE = {}, _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT, VueProjectGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT_USER, VueProjectUserGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, "default", VueGenerator), _FRAMEWORK_TYPE$VUE)), _GENERATOR_CONF);
 var generator = (function () {
   var _ref2 = _asyncToGenerator(
   regeneratorRuntime.mark(function _callee(_ref) {
-    var framework, CONF, TEMPLATE_LIST, templateListText, _ref3, typeIndex, type, _ref4, name, dest, Generator, generator;
+    var framework, CONF, TEMPLATE_LIST, templateListText, _ref3, typeIndex, type, _ref4, name, dest, GENERATOR_MAP, Generator, generator;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -566,16 +837,15 @@ var generator = (function () {
             _context.next = 9;
             return prompt$1({
               typeIndex: {
-                description: "\n".concat(templateListText, "\nSelect a template\uFF08Enter a number\uFF09"),
+                description: "\n".concat(templateListText, "\nSelect a template\uFF08Enter a number or name\uFF09"),
                 default: '1',
-                pattern: /^\d+$/,
                 required: true
               }
             });
           case 9:
             _ref3 = _context.sent;
             typeIndex = _ref3.typeIndex;
-            type = TEMPLATE_LIST[typeIndex - 1];
+            type = TEMPLATE_LIST.includes(typeIndex) ? typeIndex : TEMPLATE_LIST[typeIndex - 1];
             if (type) {
               _context.next = 15;
               break;
@@ -603,7 +873,8 @@ var generator = (function () {
             name = _ref4.name;
             dest = _ref4.dest;
             console.log(chalk.grey("Will generate ".concat(framework, " ").concat(type, " ").concat(name, " at ").concat(dest)));
-            Generator = GENERATOR_MAP[framework];
+            GENERATOR_MAP = GENERATOR_CONF[framework];
+            Generator = GENERATOR_MAP[type] || GENERATOR_MAP.default;
             generator = new Generator({
               framework: framework,
               type: type,
@@ -611,7 +882,7 @@ var generator = (function () {
               dest: dest
             });
             generator.exec();
-          case 24:
+          case 25:
           case "end":
             return _context.stop();
         }

@@ -1,0 +1,11 @@
+<div class="modal" v-if="visible">
+    <mu-dialog :open="visible" title="<%= hyphenName %>" @close="cancel">
+        <div class="<%= hyphenName %>-body">
+           <p><%= hyphenName %></p>
+        </div>
+
+        <mu-flat-button slot="actions" @click="cancel" primary :label="cancelText || $t('muse.common.cancel') "/>
+        <mu-flat-button slot="actions" @click="confirm" primary :label="confirmText || $t('muse.common.ok')"/>
+    </mu-dialog>
+</div>
+

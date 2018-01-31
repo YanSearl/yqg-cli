@@ -10,9 +10,8 @@ import path from 'path';
 import '@babel/polyfill';
 import chalk from 'chalk';
 
+import {resolveYqgShell} from '../lib/path';
 import prompt from '../lib/prompt';
-
-const resolveScript = (filename: string) => path.resolve(__dirname, './yqg-resource/shell', filename);
 
 const scripts = [
     {filename: 'git-clean-local-branch.sh', desc: '清理本地的 release 分支'},
@@ -42,6 +41,6 @@ prompt(properties)
             return;
         }
 
-        execFileSync(resolveScript(script.filename), {stdio: 'inherit'});
+        execFileSync(resolveYqgShell(script.filename), {stdio: 'inherit'});
     })
     .catch(console.error);

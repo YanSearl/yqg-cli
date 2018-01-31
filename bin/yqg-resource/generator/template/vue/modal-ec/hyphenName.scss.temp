@@ -1,0 +1,3 @@
+.<%= hyphenName %>-body {
+    color: red;
+}

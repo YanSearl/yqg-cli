@@ -1,0 +1,10 @@
+<div class="<%= hyphenName %>">
+    <ec-modal :visible="visible" title="<%= hyphenName %>" @close="cancel">
+        <div class="<%= hyphenName %>-body">
+            <p><%= hyphenName %></p>
+        </div>
+
+        <a class="btn" slot="actions" @click="confirm">{{ confirmText || $t('common.confirm') }}</a>
+        <a class="btn" slot="actions" @click="cancel">{{ cancelText || $t('common.cancel') }}</a>
+    </ec-modal>
+</div>

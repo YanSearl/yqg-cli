@@ -8,4 +8,6 @@ import {resolve} from 'path';
 
 export {resolve};
 export const resolveYqgResource = (...args) => resolve(__dirname, './yqg-resource', ...args);
+export const resolveYqgScript = (...args) => resolveYqgResource('./script', ...args);
+export const resolveYqgShell = (...args) => resolveYqgResource('./shell', ...args);
 export const resolveGeneratorTemplate = (...args) => resolveYqgResource('./generator/template', ...args);
