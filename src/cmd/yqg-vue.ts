@@ -5,6 +5,8 @@
  */
 
 import '@babel/polyfill';
+
+import '../lib/setup.ts';
 import generator from '../lib/generator/index'; // tslint:disable-line
 
 generator({framework: 'vue'});

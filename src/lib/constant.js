@@ -6,4 +6,5 @@
 
 import {version} from '../../package.json';
 
+export const DEBUG = !!process.env.DEBUG;
 export const signature = `yqg-cli@${version}`;

@@ -3,10 +3,35 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
+var constants = require('constants');
 require('@babel/polyfill');
 var commander = _interopDefault(require('commander'));
 
-var version = "0.0.14";
+var version = "0.0.16";
+
+/**
+ * @author panezhang
+ * @date 08/02/2018-13:24
+ * @file setup
+ */
+process.on('uncaughtException', function (err) {
+  console.log(); // 换行
+
+  if (constants.DEBUG) {
+    console.log('uncaughtException', err);
+  } else {
+    console.log('异常退出');
+  }
+});
+process.on('unhandledRejection', function (err, promise) {
+  console.log(); // 换行
+
+  if (constants.DEBUG) {
+    console.log('unhandledRejection', err, promise);
+  } else {
+    console.log('已退出');
+  }
+});
 
 /**
  * @author panezhang

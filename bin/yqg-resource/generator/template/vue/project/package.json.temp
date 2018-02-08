@@ -7,6 +7,6 @@
     "bundle": "babel-node ../../tools/run yqg-vue/bundle --project <%= hyphenName %>",
     "build": "babel-node ../../tools/run yqg-vue/build --project <%= hyphenName %>",
     "start": "babel-node ../../tools/run yqg-vue/start --project <%= hyphenName %>",
-    "prestart": "../../tools/shell/pre-start-hook.sh"
+    "prestart": "yqg shell check-package-json.sh ../../"
   }
 }

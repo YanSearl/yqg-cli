@@ -8,6 +8,7 @@ import '@babel/polyfill';
 import commander from 'commander';
 
 import {version} from '../../package.json';
+import '../lib/setup.ts';
 
 commander
     .version(version)

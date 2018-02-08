@@ -3,6 +3,7 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
+var constants = require('constants');
 var chalk = _interopDefault(require('chalk'));
 var prompt = _interopDefault(require('prompt'));
 var path = require('path');
@@ -158,8 +159,33 @@ function _possibleConstructorReturn(self, call) {
   return self;
 }
 
-var version = "0.0.14";
+/**
+ * @author panezhang
+ * @date 08/02/2018-13:24
+ * @file setup
+ */
+process.on('uncaughtException', function (err) {
+  console.log(); // 换行
 
+  if (constants.DEBUG) {
+    console.log('uncaughtException', err);
+  } else {
+    console.log('异常退出');
+  }
+});
+process.on('unhandledRejection', function (err, promise) {
+  console.log(); // 换行
+
+  if (constants.DEBUG) {
+    console.log('unhandledRejection', err, promise);
+  } else {
+    console.log('已退出');
+  }
+});
+
+var version = "0.0.16";
+
+var DEBUG = !!process.env.DEBUG;
 var signature = "yqg-cli@".concat(version);
 
 prompt.message = chalk.yellow(signature);

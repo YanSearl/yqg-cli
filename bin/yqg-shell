@@ -3,11 +3,47 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
+var constants = require('constants');
 var path = require('path');
 var chalk = _interopDefault(require('chalk'));
 var prompt = _interopDefault(require('prompt'));
 var child_process = require('child_process');
 require('@babel/polyfill');
+var commander = _interopDefault(require('commander'));
+
+function _toConsumableArray(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  } else {
+    return Array.from(arr);
+  }
+}
+
+/**
+ * @author panezhang
+ * @date 08/02/2018-13:24
+ * @file setup
+ */
+process.on('uncaughtException', function (err) {
+  console.log(); // 换行
+
+  if (constants.DEBUG) {
+    console.log('uncaughtException', err);
+  } else {
+    console.log('异常退出');
+  }
+});
+process.on('unhandledRejection', function (err, promise) {
+  console.log(); // 换行
+
+  if (constants.DEBUG) {
+    console.log('unhandledRejection', err, promise);
+  } else {
+    console.log('已退出');
+  }
+});
 
 var resolveYqgResource = function resolveYqgResource() {
   for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -22,8 +58,9 @@ var resolveYqgShell = function resolveYqgShell() {
   return resolveYqgResource.apply(void 0, ['./shell'].concat(args));
 };
 
-var version = "0.0.14";
+var version = "0.0.16";
 
+var DEBUG = !!process.env.DEBUG;
 var signature = "yqg-cli@".concat(version);
 
 prompt.message = chalk.yellow(signature);
@@ -49,28 +86,69 @@ var scripts$1 = [{
 }, {
   filename: 'git-clean-remote-branch.sh',
   desc: '清理远程的 release 分支'
+}, {
+  filename: 'check-package-json.sh',
+  desc: '检查 package.json 是否变化'
 }];
-var hintText = scripts$1.map(function (script, idx) {
-  return "".concat(chalk.yellow(idx + 1), ". ").concat(chalk.green(script.filename), " ").concat(script.desc);
-}).join('\n');
-console.log("\u8BF7\u9009\u62E9\u8981\u6267\u884C\u7684\u811A\u672C\uFF1A\n".concat(hintText, "\n"));
-var properties = {
-  no: {
-    pattern: /^\d+$/,
-    description: '输入一个序号',
-    message: '只能输入数字',
-    required: true
-  }
-};
-prompt$1(properties).then(function (result) {
-  var script = scripts$1[result.no - 1];
+var scriptNameMap = scripts$1.reduce(function (acc, item) {
+  acc[item.filename] = item;
+  return acc;
+}, {});
 
-  if (!script) {
-    console.error("\u5E8F\u53F7\u4E3A ".concat(result.no, " \u7684\u811A\u672C\u4E0D\u5B58\u5728\uFF01"));
+function execWithArgs(shell) {
+  if (!shell) {
+    console.log('请指定要执行的脚本名称');
     return;
   }
 
-  child_process.execFileSync(resolveYqgShell(script.filename), {
+  var script = scriptNameMap[shell];
+
+  if (!script) {
+    console.log("\u672A\u627E\u5230 ".concat(shell, "\uFF0C\u8BF7\u68C0\u67E5\u62FC\u5199\u662F\u5426\u6B63\u786E"));
+    return;
+  }
+
+  for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    params[_key - 1] = arguments[_key];
+  }
+
+  child_process.execFileSync(resolveYqgShell(script.filename), params, {
     stdio: 'inherit'
   });
-}).catch(console.error);
+}
+
+function execWithoutArgs() {
+  var hintText = scripts$1.map(function (script, idx) {
+    return "".concat(chalk.yellow(idx + 1), ". ").concat(chalk.green(script.filename), " ").concat(script.desc);
+  }).join('\n');
+  console.log("\u8BF7\u9009\u62E9\u8981\u6267\u884C\u7684\u811A\u672C\uFF1A\n".concat(hintText, "\n"));
+  var properties = {
+    no: {
+      pattern: /^\d+$/,
+      description: '输入一个序号',
+      message: '只能输入数字',
+      required: true
+    }
+  };
+  prompt$1(properties).then(function (result) {
+    var script = scripts$1[result.no - 1];
+
+    if (!script) {
+      console.error("\u5E8F\u53F7\u4E3A ".concat(result.no, " \u7684\u811A\u672C\u4E0D\u5B58\u5728\uFF01"));
+      return;
+    }
+
+    child_process.execFileSync(resolveYqgShell(script.filename), {
+      stdio: 'inherit'
+    });
+  });
+}
+
+commander.usage('[shell [...params]]').parse(process.argv);
+
+if (commander.args.length) {
+  // 传递了 shell 参数，检查是否正确
+  execWithArgs.apply(void 0, _toConsumableArray(commander.args));
+} else {
+  execWithoutArgs();
+}
