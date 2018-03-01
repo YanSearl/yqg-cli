@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "7.0.0-beta.39",
-    "chalk": "2.3.0",
+    "chalk": "2.3.1",
     "commander": "2.14.1",
     "git-user-info": "1.0.0",
     "gulp": "3.9.1",
@@ -25,24 +25,23 @@
     "@babel/preset-env": "7.0.0-beta.38",
     "@babel/preset-stage-3": "7.0.0-beta.38",
     "@babel/preset-typescript": "7.0.0-beta.38",
-    "@types/node": "9.4.2",
+    "@types/node": "9.4.6",
     "@yqg/arcanist": "0.0.2",
-    "babel-eslint": "8.2.1",
-    "eslint": "4.17.0",
+    "@yqg/eslint-config": "0.0.4",
+    "babel-eslint": "8.2.2",
+    "eslint": "4.18.1",
     "eslint-config-airbnb": "16.1.0",
-    "eslint-plugin-import": "2.8.0",
-    "eslint-plugin-jsx-a11y": "6.0.3",
-    "eslint-plugin-react": "7.6.1",
-    "husky": "0.14.3",
-    "lint-staged": "6.1.0",
-    "rollup": "0.55.3",
+    "eslint-plugin-import": "2.9.0",
+    "husky": "0.15.0-rc.8",
+    "lint-staged": "7.0.0",
+    "rollup": "0.56.3",
     "rollup-plugin-babel": "4.0.0-beta.0",
     "rollup-plugin-cleanup": "2.0.0",
     "rollup-plugin-json": "2.3.0",
     "rollup-plugin-typescript": "0.8.1",
     "tslint": "5.9.1",
-    "tslint-config-airbnb": "5.6.0",
-    "typescript": "2.7.1"
+    "tslint-config-airbnb": "5.7.0",
+    "typescript": "2.7.2"
   },
   "bin": {
     "yqg": "bin/yqg",
@@ -57,8 +56,12 @@
     "eslint:all": "eslint rollup.config.js 'src/**/*.js'",
     "tslint:all": "tslint -c tslint.json -t verbose 'src/**/*.ts'",
     "arc:eslint": "eslint",
-    "arc:tslint": "tslint -c tslint.json -t verbose",
-    "precommit": "lint-staged"
+    "arc:tslint": "tslint -c tslint.json -t verbose"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "lint-staged": {
     "*.js": [

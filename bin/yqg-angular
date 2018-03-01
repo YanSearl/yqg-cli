@@ -835,9 +835,7 @@ function (_VueGenerator) {
   return VueProjectUserGenerator;
 }(VueGenerator);
 
-var _FRAMEWORK_TYPE$ANGUL;
-var _FRAMEWORK_TYPE$VUE;
-var _GENERATOR_CONF;
+var _FRAMEWORK_TYPE$ANGUL, _FRAMEWORK_TYPE$VUE, _GENERATOR_CONF;
 var GENERATOR_CONF = (_GENERATOR_CONF = {}, _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE.ANGULAR, (_FRAMEWORK_TYPE$ANGUL = {}, _defineProperty(_FRAMEWORK_TYPE$ANGUL, ANGULAR_TEMPLATE_TYPE.COMPONENT, AngularComponentGenerator), _defineProperty(_FRAMEWORK_TYPE$ANGUL, "default", AngularGenerator), _FRAMEWORK_TYPE$ANGUL)), _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE.VUE, (_FRAMEWORK_TYPE$VUE = {}, _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT, VueProjectGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT_USER, VueProjectUserGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, "default", VueGenerator), _FRAMEWORK_TYPE$VUE)), _GENERATOR_CONF);
 var generator = (function () {
   var _ref2 = _asyncToGenerator(
@@ -925,6 +923,7 @@ var generator = (function () {
  * @date 28/12/2017-19:19
  * @file yqg-angular
  */
+
 generator({
   framework: 'angular'
 });
