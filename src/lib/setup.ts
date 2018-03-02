@@ -4,7 +4,7 @@
  * @file setup
  */
 
-import {DEBUG} from 'constants';
+import {DEBUG} from './constant';
 
 process.on('uncaughtException', (err) => {
     console.log(); // 换行

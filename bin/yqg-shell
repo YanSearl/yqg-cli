@@ -3,7 +3,6 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var constants = require('constants');
 var path = require('path');
 var chalk = _interopDefault(require('chalk'));
 var prompt = _interopDefault(require('prompt'));
@@ -21,6 +20,11 @@ function _toConsumableArray(arr) {
   }
 }
 
+var version = "0.0.17";
+
+var DEBUG = !!process.env.DEBUG;
+var signature = "yqg-cli@".concat(version);
+
 /**
  * @author panezhang
  * @date 08/02/2018-13:24
@@ -29,7 +33,7 @@ function _toConsumableArray(arr) {
 process.on('uncaughtException', function (err) {
   console.log(); // 换行
 
-  if (constants.DEBUG) {
+  if (DEBUG) {
     console.log('uncaughtException', err);
   } else {
     console.log('异常退出');
@@ -38,7 +42,7 @@ process.on('uncaughtException', function (err) {
 process.on('unhandledRejection', function (err, promise) {
   console.log(); // 换行
 
-  if (constants.DEBUG) {
+  if (DEBUG) {
     console.log('unhandledRejection', err, promise);
   } else {
     console.log('已退出');
@@ -57,11 +61,6 @@ var resolveYqgShell = function resolveYqgShell() {
   }
   return resolveYqgResource.apply(void 0, ['./shell'].concat(args));
 };
-
-var version = "0.0.16";
-
-var DEBUG = !!process.env.DEBUG;
-var signature = "yqg-cli@".concat(version);
 
 prompt.message = chalk.yellow(signature);
 var prompt$1 = (function (properties) {
