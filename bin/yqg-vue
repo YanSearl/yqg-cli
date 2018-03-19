@@ -4,6 +4,10 @@
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var chalk = _interopDefault(require('chalk'));
+var fs = require('fs');
+var expandTilde = _interopDefault(require('expand-tilde'));
+var getPackageInfo = _interopDefault(require('package-json'));
+var semver = _interopDefault(require('semver'));
 var prompt = _interopDefault(require('prompt'));
 var path = require('path');
 var gulp = _interopDefault(require('gulp'));
@@ -158,10 +162,126 @@ function _possibleConstructorReturn(self, call) {
   return self;
 }
 
-var version = "0.0.17";
+function _toConsumableArray(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  } else {
+    return Array.from(arr);
+  }
+}
+
+var name = "@yqg/cli";
+var version = "0.0.18";
 
 var DEBUG = !!process.env.DEBUG;
+var VERSION_CHECK_DISABLE = !!process.env.NODE_ENV;
+var VERSION_CHECK_PERIOD = 86400e3;
+var VERSION_FILE_PATH = '~/.yqg-cli.log';
 var signature = "yqg-cli@".concat(version);
+
+var colored = function colored(chalkMethod) {
+  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+  return args.map(function (obj) {
+    return typeof obj === 'string' ? chalkMethod(obj) : obj;
+  });
+};
+var timeFormat = function timeFormat(time) {
+  return time.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1');
+};
+var timePrefix = function timePrefix() {
+  var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : new Date();
+  return chalk.yellow("[".concat(timeFormat(time), "][").concat(signature, "]"));
+};
+var timeInfoMap = {};
+var logger = {
+  info: function info() {
+    var _console;
+    for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+    (_console = console).log.apply(_console, [timePrefix()].concat(args));
+  },
+  error: function error() {
+    var _console2;
+    for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      args[_key3] = arguments[_key3];
+    }
+    (_console2 = console).error.apply(_console2, [timePrefix()].concat(_toConsumableArray(colored.apply(void 0, [chalk.red].concat(args)))));
+  },
+  success: function success() {
+    var _console3;
+    for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
+    }
+    (_console3 = console).error.apply(_console3, [timePrefix()].concat(_toConsumableArray(colored.apply(void 0, [chalk.green].concat(args)))));
+  },
+  strong: function strong() {
+    var _console4;
+    for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      args[_key5] = arguments[_key5];
+    }
+    (_console4 = console).error.apply(_console4, [timePrefix()].concat(_toConsumableArray(colored.apply(void 0, [chalk.bgGreen].concat(args)))));
+  },
+  time: function time(tag) {
+    if (!tag) throw new Error('Tag can not be empty!');
+    timeInfoMap[tag] = {
+      timeStarted: Date.now()
+    };
+    for (var _len6 = arguments.length, args = new Array(_len6 > 1 ? _len6 - 1 : 0), _key6 = 1; _key6 < _len6; _key6++) {
+      args[_key6 - 1] = arguments[_key6];
+    }
+    logger.info.apply(logger, ["Starting '".concat(tag, "' ...")].concat(args));
+  },
+  timeEnd: function timeEnd(tag) {
+    if (!tag) throw new Error('Tag can not be empty!');
+    var timeInfo = timeInfoMap[tag];
+    if (!timeInfo) throw new Error("logger.time(".concat(tag, ") has not been invoked yet."));
+    var millis = Date.now() - timeInfo.timeStarted;
+    delete timeInfoMap[tag];
+    for (var _len7 = arguments.length, args = new Array(_len7 > 1 ? _len7 - 1 : 0), _key7 = 1; _key7 < _len7; _key7++) {
+      args[_key7 - 1] = arguments[_key7];
+    }
+    logger.info.apply(logger, ["Finished '".concat(tag, "' after ").concat(millis, " ms")].concat(args));
+  }
+};
+
+var LOG_TAG = 'check-version';
+var checkVersion = (function () {
+  return new Promise(function (resolve, reject) {
+    if (VERSION_CHECK_DISABLE) {
+      resolve();
+      return;
+    }
+    var timestamp = 0;
+    var filePath = expandTilde(VERSION_FILE_PATH);
+    if (fs.existsSync(filePath)) {
+      timestamp = +fs.readFileSync(filePath).toString() || 0;
+    }
+    var now = Date.now();
+    if (now - timestamp < VERSION_CHECK_PERIOD) {
+      resolve();
+      return;
+    }
+    logger.time(LOG_TAG);
+    getPackageInfo(name).then(function (_ref) {
+      var latestVersion = _ref.version;
+      if (semver.gt(latestVersion, version)) {
+        logger.strong("Please run 'npm i -g ".concat(name, "@").concat(latestVersion, "' to update your yqg-cli."));
+      } else if (semver.lt(latestVersion, version)) {
+        logger.error("npm latest version ".concat(latestVersion, " is less than local version ").concat(version, "."));
+      } else {
+        logger.success('Congratulations! Your yqg-cli is the latest!');
+        fs.writeFileSync(filePath, now);
+      }
+      logger.timeEnd(LOG_TAG);
+      resolve();
+    }, reject);
+  });
+});
 
 /**
  * @author panezhang
@@ -185,6 +305,9 @@ process.on('unhandledRejection', function (err, promise) {
   } else {
     console.log('已退出');
   }
+});
+var setup = (function () {
+  return Promise.all([checkVersion()]);
 });
 
 prompt.message = chalk.yellow(signature);
@@ -922,7 +1045,8 @@ var generator = (function () {
  * @date 28/12/2017-19:19
  * @file yqg-vue
  */
-
-generator({
-  framework: 'vue'
+setup().then(function () {
+  return generator({
+    framework: 'vue'
+  });
 });

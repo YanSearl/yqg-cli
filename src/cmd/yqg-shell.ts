@@ -10,10 +10,11 @@ import '@babel/polyfill';
 import chalk from 'chalk';
 import commander from 'commander';
 
-import '../lib/setup.ts';
 import {resolveYqgShell} from '../lib/path';
 import prompt from '../lib/prompt';
 
+// tslint:disable-next-line
+import setup from '../lib/setup.ts';
 
 const scripts = [
     {filename: 'git-clean-local-branch.sh', desc: '清理本地的 release 分支'},
@@ -71,12 +72,14 @@ function execWithoutArgs() {
     });
 }
 
-commander
-    .usage('[shell [...params]]')
-    .parse(process.argv);
+setup().then(() => {
+    commander
+        .usage('[shell [...params]]')
+        .parse(process.argv);
 
-if (commander.args.length) { // 传递了 shell 参数，检查是否正确
-    execWithArgs(...commander.args);
-} else {
-    execWithoutArgs();
-}
+    if (commander.args.length) { // 传递了 shell 参数，检查是否正确
+        execWithArgs(...commander.args);
+    } else {
+        execWithoutArgs();
+    }
+});

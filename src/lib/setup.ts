@@ -5,6 +5,7 @@
  */
 
 import {DEBUG} from './constant';
+import checkVersion from './check-version';
 
 process.on('uncaughtException', (err) => {
     console.log(); // 换行
@@ -25,3 +26,7 @@ process.on('unhandledRejection', (err, promise) => {
         console.log('已退出');
     }
 });
+
+export default () => Promise.all([
+    checkVersion()
+]);
