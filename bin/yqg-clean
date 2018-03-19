@@ -1,0 +1,402 @@
+#!/usr/bin/env node
+'use strict';
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var chalk = _interopDefault(require('chalk'));
+var fs = require('fs');
+var expandTilde = _interopDefault(require('expand-tilde'));
+var getPackageInfo = _interopDefault(require('package-json'));
+var semver = _interopDefault(require('semver'));
+var _regeneratorRuntime = _interopDefault(require('@babel/runtime/regenerator'));
+var fsExtra = require('fs-extra');
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+        args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function step(key, arg) {
+        try {
+          var info = gen[key](arg);
+          var value = info.value;
+        } catch (error) {
+          reject(error);
+          return;
+        }
+
+        if (info.done) {
+          resolve(value);
+        } else {
+          Promise.resolve(value).then(_next, _throw);
+        }
+      }
+
+      function _next(value) {
+        step("next", value);
+      }
+
+      function _throw(err) {
+        step("throw", err);
+      }
+
+      _next();
+    });
+  };
+}
+
+function _toConsumableArray(arr) {
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+}
+
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+}
+
+function _iterableToArray(iter) {
+  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+}
+
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance");
+}
+
+var name = "@yqg/cli";
+var version = "0.0.18";
+
+var DEBUG = !!process.env.DEBUG;
+var VERSION_CHECK_DISABLE = !!process.env.NODE_ENV;
+var VERSION_CHECK_PERIOD = 86400e3;
+var VERSION_FILE_PATH = '~/.yqg-cli.log';
+var signature = "yqg-cli@".concat(version);
+
+var colored = function colored(chalkMethod) {
+  for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    args[_key - 1] = arguments[_key];
+  }
+  return args.map(function (obj) {
+    return typeof obj === 'string' ? chalkMethod(obj) : obj;
+  });
+};
+var timeFormat = function timeFormat(time) {
+  return time.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1');
+};
+var timePrefix = function timePrefix() {
+  var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : new Date();
+  return chalk.yellow("[".concat(timeFormat(time), "][").concat(signature, "]"));
+};
+var timeInfoMap = {};
+var logger = {
+  info: function info() {
+    var _console;
+    for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+    (_console = console).log.apply(_console, [timePrefix()].concat(args));
+  },
+  error: function error() {
+    var _console2;
+    for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+      args[_key3] = arguments[_key3];
+    }
+    (_console2 = console).error.apply(_console2, [timePrefix()].concat(_toConsumableArray(colored.apply(void 0, [chalk.red].concat(args)))));
+  },
+  success: function success() {
+    var _console3;
+    for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+      args[_key4] = arguments[_key4];
+    }
+    (_console3 = console).error.apply(_console3, [timePrefix()].concat(_toConsumableArray(colored.apply(void 0, [chalk.green].concat(args)))));
+  },
+  strong: function strong() {
+    var _console4;
+    for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+      args[_key5] = arguments[_key5];
+    }
+    (_console4 = console).error.apply(_console4, [timePrefix()].concat(_toConsumableArray(colored.apply(void 0, [chalk.bgGreen].concat(args)))));
+  },
+  time: function time(tag) {
+    if (!tag) throw new Error('Tag can not be empty!');
+    timeInfoMap[tag] = {
+      timeStarted: Date.now()
+    };
+    for (var _len6 = arguments.length, args = new Array(_len6 > 1 ? _len6 - 1 : 0), _key6 = 1; _key6 < _len6; _key6++) {
+      args[_key6 - 1] = arguments[_key6];
+    }
+    logger.info.apply(logger, ["Starting '".concat(tag, "' ...")].concat(args));
+  },
+  timeEnd: function timeEnd(tag) {
+    if (!tag) throw new Error('Tag can not be empty!');
+    var timeInfo = timeInfoMap[tag];
+    if (!timeInfo) throw new Error("logger.time(".concat(tag, ") has not been invoked yet."));
+    var millis = Date.now() - timeInfo.timeStarted;
+    delete timeInfoMap[tag];
+    for (var _len7 = arguments.length, args = new Array(_len7 > 1 ? _len7 - 1 : 0), _key7 = 1; _key7 < _len7; _key7++) {
+      args[_key7 - 1] = arguments[_key7];
+    }
+    logger.info.apply(logger, ["Finished '".concat(tag, "' after ").concat(millis, " ms")].concat(args));
+  }
+};
+
+var LOG_TAG = 'check-version';
+var checkVersion = (function () {
+  return new Promise(function (resolve, reject) {
+    if (VERSION_CHECK_DISABLE) {
+      resolve();
+      return;
+    }
+    var timestamp = 0;
+    var filePath = expandTilde(VERSION_FILE_PATH);
+    if (fs.existsSync(filePath)) {
+      timestamp = +fs.readFileSync(filePath).toString() || 0;
+    }
+    var now = Date.now();
+    if (now - timestamp < VERSION_CHECK_PERIOD) {
+      resolve();
+      return;
+    }
+    logger.time(LOG_TAG);
+    getPackageInfo(name).then(function (_ref) {
+      var latestVersion = _ref.version;
+      if (semver.gt(latestVersion, version)) {
+        logger.strong("Please run 'npm i -g ".concat(name, "@").concat(latestVersion, "' to update your yqg-cli."));
+      } else if (semver.lt(latestVersion, version)) {
+        logger.error("npm latest version ".concat(latestVersion, " is less than local version ").concat(version, "."));
+      } else {
+        logger.success('Congratulations! Your yqg-cli is the latest!');
+        fs.writeFileSync(filePath, now);
+      }
+      logger.timeEnd(LOG_TAG);
+      resolve();
+    }, reject);
+  });
+});
+
+/**
+ * @author panezhang
+ * @date 08/02/2018-13:24
+ * @file setup
+ */
+process.on('uncaughtException', function (err) {
+  console.log(); // 换行
+
+  if (DEBUG) {
+    console.log('uncaughtException', err);
+  } else {
+    console.log('异常退出');
+  }
+});
+process.on('unhandledRejection', function (err, promise) {
+  console.log(); // 换行
+
+  if (DEBUG) {
+    console.log('unhandledRejection', err, promise);
+  } else {
+    console.log('已退出');
+  }
+});
+var setup = (function () {
+  return Promise.all([checkVersion()]);
+});
+
+var build = {};
+
+var bundle = {};
+
+var DEFAULT_OPTIONS = {
+  remove: 'build',
+  recreate: true,
+  ensure: 'build'
+};
+var clean = (function () {
+  var _ref = _asyncToGenerator(
+  _regeneratorRuntime.mark(function _callee(opts) {
+    var _Object$assign, optsRemove, recreate, optsEnsure, removeTargets, ensureTargets, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _target2, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, _target3;
+    return _regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _Object$assign = Object.assign({}, DEFAULT_OPTIONS, opts), optsRemove = _Object$assign.remove, recreate = _Object$assign.recreate, optsEnsure = _Object$assign.ensure;
+            removeTargets = typeof optsRemove === 'string' ? [optsRemove] : optsRemove;
+            ensureTargets = recreate ? _toConsumableArray(removeTargets) : [];
+            if (optsEnsure) {
+              typeof optsEnsure === 'string' ? ensureTargets.push(optsEnsure) : ensureTargets.push.apply(ensureTargets, _toConsumableArray(optsEnsure));
+            }
+            _iteratorNormalCompletion = true;
+            _didIteratorError = false;
+            _iteratorError = undefined;
+            _context.prev = 7;
+            _iterator = removeTargets[Symbol.iterator]();
+          case 9:
+            if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+              _context.next = 16;
+              break;
+            }
+            _target2 = _step.value;
+            _context.next = 13;
+            return fsExtra.remove(_target2);
+          case 13:
+            _iteratorNormalCompletion = true;
+            _context.next = 9;
+            break;
+          case 16:
+            _context.next = 22;
+            break;
+          case 18:
+            _context.prev = 18;
+            _context.t0 = _context["catch"](7);
+            _didIteratorError = true;
+            _iteratorError = _context.t0;
+          case 22:
+            _context.prev = 22;
+            _context.prev = 23;
+            if (!_iteratorNormalCompletion && _iterator.return != null) {
+              _iterator.return();
+            }
+          case 25:
+            _context.prev = 25;
+            if (!_didIteratorError) {
+              _context.next = 28;
+              break;
+            }
+            throw _iteratorError;
+          case 28:
+            return _context.finish(25);
+          case 29:
+            return _context.finish(22);
+          case 30:
+            _iteratorNormalCompletion2 = true;
+            _didIteratorError2 = false;
+            _iteratorError2 = undefined;
+            _context.prev = 33;
+            _iterator2 = ensureTargets[Symbol.iterator]();
+          case 35:
+            if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
+              _context.next = 42;
+              break;
+            }
+            _target3 = _step2.value;
+            _context.next = 39;
+            return fsExtra.ensureDir(_target3);
+          case 39:
+            _iteratorNormalCompletion2 = true;
+            _context.next = 35;
+            break;
+          case 42:
+            _context.next = 48;
+            break;
+          case 44:
+            _context.prev = 44;
+            _context.t1 = _context["catch"](33);
+            _didIteratorError2 = true;
+            _iteratorError2 = _context.t1;
+          case 48:
+            _context.prev = 48;
+            _context.prev = 49;
+            if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+              _iterator2.return();
+            }
+          case 51:
+            _context.prev = 51;
+            if (!_didIteratorError2) {
+              _context.next = 54;
+              break;
+            }
+            throw _iteratorError2;
+          case 54:
+            return _context.finish(51);
+          case 55:
+            return _context.finish(48);
+          case 56:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this, [[7, 18, 22, 30], [23,, 25, 29], [33, 44, 48, 56], [49,, 51, 55]]);
+  }));
+  return function (_x) {
+    return _ref.apply(this, arguments);
+  };
+})();
+
+var copy = {};
+
+var start = {};
+
+var scripts$1 = {
+  build: build,
+  bundle: bundle,
+  clean: clean,
+  copy: copy,
+  start: start
+};
+var run = (function () {
+  var _ref = _asyncToGenerator(
+  _regeneratorRuntime.mark(function _callee(name, opts) {
+    var script;
+    return _regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            script = scripts$1[name];
+            if (script) {
+              _context.next = 4;
+              break;
+            }
+            logger.error("script '".concat(name, "' not found."));
+            return _context.abrupt("return");
+          case 4:
+            logger.time(name);
+            _context.next = 7;
+            return script.default;
+          case 7:
+            if (!_context.sent) {
+              _context.next = 11;
+              break;
+            }
+            script.default();
+            _context.next = 12;
+            break;
+          case 11:
+            script();
+          case 12:
+            logger.timeEnd(name);
+          case 13:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+  return function (_x, _x2) {
+    return _ref.apply(this, arguments);
+  };
+})();
+
+_asyncToGenerator(
+/*#__PURE__*/
+_regeneratorRuntime.mark(function _callee() {
+  return _regeneratorRuntime.wrap(function _callee$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          _context.next = 2;
+          return setup();
+
+        case 2:
+          _context.next = 4;
+          return run('clean');
+
+        case 4:
+        case "end":
+          return _context.stop();
+      }
+    }
+  }, _callee, this);
+}))();

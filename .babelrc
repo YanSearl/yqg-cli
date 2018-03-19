@@ -14,5 +14,16 @@
         ],
         "@babel/preset-stage-3",
         "@babel/preset-typescript"
+    ],
+    "plugins": [
+        [
+            "@babel/plugin-transform-runtime",
+            {
+                "helpers": false,
+                "polyfill": false,
+                "regenerator": true,
+                "moduleName": "@babel/runtime"
+            }
+        ]
     ]
 }

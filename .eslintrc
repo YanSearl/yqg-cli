@@ -1,6 +1,7 @@
 {
     "extends": "@yqg/eslint-config/base",
     "rules": {
-        "no-console": [1]
+        "no-console": [1],
+        "no-unused-expressions": [1]
     }
 }
