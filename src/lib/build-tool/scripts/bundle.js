@@ -8,4 +8,6 @@
 
 // system modules
 
-export default {};
+export default async () => {
+
+};
