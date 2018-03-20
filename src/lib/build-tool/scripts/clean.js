@@ -3,7 +3,7 @@
  * @date 15/03/2018-18:44
  * @file clean
  */
-/* eslint-disable no-unused-expressions, no-restricted-syntax, no-await-in-loop */
+/* eslint-disable no-restricted-syntax, no-await-in-loop */
 
 import {remove, ensureDir} from 'fs-extra';
 
