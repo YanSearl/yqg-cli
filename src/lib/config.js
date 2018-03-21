@@ -1,7 +1,9 @@
 /**
  * @author panezhang
  * @date 20/03/2018-16:39
- * @file yqgrc
+ * @file config
+ *
+ * get project config for yqg cli
  */
 
 import config from 'config';

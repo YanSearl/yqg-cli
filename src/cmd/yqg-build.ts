@@ -10,5 +10,7 @@ import run from '../lib/build-tool/run';
 
 (async () => {
     await setup();
-    await run('build');
+    await run('clean');
+    await run('copy');
+    await run('bundle');
 })();

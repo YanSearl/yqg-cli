@@ -11,3 +11,6 @@ export const resolveYqgResource = (...args) => resolve(__dirname, './yqg-resourc
 export const resolveYqgScript = (...args) => resolveYqgResource('./script', ...args);
 export const resolveYqgShell = (...args) => resolveYqgResource('./shell', ...args);
 export const resolveGeneratorTemplate = (...args) => resolveYqgResource('./generator/template', ...args);
+
+const PWD = process.cwd();
+export const resolvePwd = (...args) => resolve(PWD, ...args);

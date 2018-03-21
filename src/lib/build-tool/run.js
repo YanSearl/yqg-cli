@@ -7,14 +7,12 @@
 import config from '../config';
 import logger from '../logger';
 
-import build from './scripts/build';
 import bundle from './scripts/bundle';
 import clean from './scripts/clean';
 import copy from './scripts/copy';
 import start from './scripts/start';
 
 const scripts = {
-    build,
     bundle,
     clean,
     copy,
@@ -32,6 +30,6 @@ export default async (name, cmdOpts) => {
 
     logger.time(name);
     const opts = Object.assign({}, config[name], cmdOpts);
-    await script.default ? script.default(opts) : script(opts);
+    await (script.default ? script.default(opts) : script(opts));
     logger.timeEnd(name);
 };

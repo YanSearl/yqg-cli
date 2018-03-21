@@ -8,11 +8,13 @@
 import {copy} from 'fs-extra';
 import replace from 'replace';
 
+import {PACKAGE_JSON_PATH} from '../webpack/build-conf';
+
 const DEFAULT_OPTIONS = {
     paths: { // path src => dest as key => value
-        'config': 'build/config',
-        'static': 'build/static',
-        'package.json': 'build/package.json'
+        config: 'build/config',
+        static: 'build/static',
+        [PACKAGE_JSON_PATH]: 'build/package.json'
     },
 
     exclude: null, // TODO add support to exclude files

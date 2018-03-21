@@ -46,6 +46,7 @@ var resolveYqgShell = function resolveYqgShell() {
   }
   return resolveYqgResource.apply(void 0, ['./shell'].concat(args));
 };
+var PWD = process.cwd();
 
 var name = "@yqg/cli";
 var version = "0.0.18";

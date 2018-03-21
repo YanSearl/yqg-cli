@@ -377,6 +377,7 @@ var resolveGeneratorTemplate = function resolveGeneratorTemplate() {
   }
   return resolveYqgResource.apply(void 0, ['./generator/template'].concat(args));
 };
+var PWD = process.cwd();
 
 function genFiles (_ref) {
   var srcPath = _ref.srcPath,
