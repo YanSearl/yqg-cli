@@ -1,6 +1,6 @@
 {
   "name": "@yqg/cli",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "yqg web cli tool",
   "author": "yqg web team",
   "license": "MIT",
@@ -79,7 +79,12 @@
     "yqg-angular": "bin/yqg-angular",
     "yqg-vue": "bin/yqg-vue",
     "yqg-shell": "bin/yqg-shell",
-    "yqg-resource": "bin/yqg-resource"
+    "yqg-resource": "bin/yqg-resource",
+    "yqg-clean": "bin/yqg-clean",
+    "yqg-copy": "bin/yqg-copy",
+    "yqg-bundle": "bin/yqg-bundle",
+    "yqg-build": "bin/yqg-build",
+    "yqg-start": "bin/yqg-start"
   },
   "scripts": {
     "arc:eslint": "eslint",
