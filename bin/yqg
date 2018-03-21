@@ -32,7 +32,7 @@ function _nonIterableSpread() {
 }
 
 var name = "@yqg/cli";
-var version = "0.0.18";
+var version = "0.1.0-alpha.0";
 
 var DEBUG = !!process.env.DEBUG;
 var VERSION_CHECK_DISABLE = !!process.env.NODE_ENV;

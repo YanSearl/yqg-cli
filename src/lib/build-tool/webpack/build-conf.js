@@ -7,7 +7,7 @@
 import config from 'config';
 
 export const STAGE = process.env.NODE_ENV || 'dev';
-export const DEV = /test|feat|prod/.test(STAGE);
+export const DEV = !(/test|feat|prod/.test(STAGE));
 
 // common config shared between projects
 const STAGE_CONF = {
@@ -62,5 +62,6 @@ export const { // default value for buildConf
 
 export const {
     apiHost: API_HOST = '',
-    webHost: WEB_HOST = ''
+    webHost: WEB_HOST = '',
+    port: PORT = 8080
 } = runConf;
