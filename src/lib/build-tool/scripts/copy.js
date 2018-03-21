@@ -5,7 +5,7 @@
  */
 /* eslint-disable no-restricted-syntax, no-await-in-loop */
 
-import {copy} from 'fs-extra';
+import {copy, existsSync} from 'fs-extra';
 import replace from 'replace';
 
 import {PACKAGE_JSON_PATH} from '../webpack/build-conf';
@@ -13,7 +13,8 @@ import {PACKAGE_JSON_PATH} from '../webpack/build-conf';
 const DEFAULT_OPTIONS = {
     paths: { // path src => dest as key => value
         config: 'build/config',
-        static: 'build/static',
+        public: 'build/public',
+        static: 'build/public/static',
         [PACKAGE_JSON_PATH]: 'build/package.json'
     },
 
@@ -27,7 +28,9 @@ export default async (opts = {}) => {
 
     const srcArr = Object.keys(paths);
     for (const src of srcArr) {
-        await copy(src, paths[src]);
+        if (existsSync(src)) {
+            await copy(src, paths[src]);
+        }
     }
 
     if (replaceScripts) {

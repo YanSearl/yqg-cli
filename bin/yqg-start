@@ -156,7 +156,7 @@ function _nonIterableRest() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.0-alpha.1";
+var version = "0.1.0-alpha.2";
 
 var DEBUG = !!process.env.DEBUG;
 var VERSION_CHECK_DISABLE = !!process.env.NODE_ENV;
@@ -635,7 +635,8 @@ var clean = (function () {
 var DEFAULT_OPTIONS$1 = {
   paths: _defineProperty({
     config: 'build/config',
-    static: 'build/static'
+    public: 'build/public',
+    static: 'build/public/static'
   }, PACKAGE_JSON_PATH, 'build/package.json'),
   exclude: null,
   replace: true
@@ -661,17 +662,21 @@ _regeneratorRuntime.mark(function _callee() {
           _i = 0;
         case 5:
           if (!(_i < srcArr.length)) {
-            _context.next = 12;
+            _context.next = 13;
             break;
           }
           src = srcArr[_i];
-          _context.next = 9;
+          if (!fsExtra.existsSync(src)) {
+            _context.next = 10;
+            break;
+          }
+          _context.next = 10;
           return fsExtra.copy(src, paths[src]);
-        case 9:
+        case 10:
           _i++;
           _context.next = 5;
           break;
-        case 12:
+        case 13:
           if (replaceScripts) {
             replace({
               regex: '"scripts": {(.|\n)*?}',
@@ -681,7 +686,7 @@ _regeneratorRuntime.mark(function _callee() {
               silent: false
             });
           }
-        case 13:
+        case 14:
         case "end":
           return _context.stop();
       }
@@ -714,7 +719,7 @@ process.on('exit', killServer);
 
 var DEV_PORT = PORT + 1;
 var FALLBACK_URL_PREFIX_LIST = [
-'/admin', '/ws', '/print', '/api-web'];
+'/api', '/admin', '/api-web', '/ws', '/print', '/static'];
 var isApiUrl = function isApiUrl(url) {
   return FALLBACK_URL_PREFIX_LIST.some(function (prefix) {
     return url.startsWith(prefix);
@@ -831,8 +836,8 @@ function _start() {
             devServer = express();
             devServer.use(function (req, res, next) {
               var publicPath = clientConfig.output.path;
-              if (req.url && (isApiUrl(req.url) || fs__default.existsSync(publicPath + req.url))) {
-                logger.info(req.method, req.originalUrl);
+              if (req.url && req.url.length > 1 && (isApiUrl(req.url) || fs__default.existsSync(publicPath + req.url))) {
+                logger.info('fallback', req.method, req.originalUrl);
                 runServerPromise.then(function () {
                   return proxyMiddleware(req, res, next);
                 }).catch(logger.error);

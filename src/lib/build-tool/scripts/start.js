@@ -29,10 +29,12 @@ import serverConfig from '../webpack/webpack.server.config';
 const DEV_PORT = PORT + 1;
 
 const FALLBACK_URL_PREFIX_LIST = [ // TODO config
+    '/api',
     '/admin',
+    '/api-web',
     '/ws',
     '/print',
-    '/api-web'
+    '/static'
 ];
 
 const isApiUrl = url => FALLBACK_URL_PREFIX_LIST.some(prefix => url.startsWith(prefix));
@@ -101,8 +103,8 @@ async function start() {
     const devServer = express();
     devServer.use((req, res, next) => {
         const publicPath = clientConfig.output.path;
-        if (req.url && (isApiUrl(req.url) || fs.existsSync(publicPath + req.url))) {
-            logger.info(req.method, req.originalUrl);
+        if (req.url && req.url.length > 1 && (isApiUrl(req.url) || fs.existsSync(publicPath + req.url))) {
+            logger.info('fallback', req.method, req.originalUrl);
             runServerPromise.then(() => proxyMiddleware(req, res, next)).catch(logger.error);
             return;
         }
