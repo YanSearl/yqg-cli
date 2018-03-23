@@ -24,6 +24,7 @@
     "file-loader": "1.1.11",
     "fs-extra": "5.0.0",
     "git-user-info": "1.0.0",
+    "global-prefix": "1.0.2",
     "gulp": "3.9.1",
     "gulp-rename": "1.2.2",
     "gulp-template": "5.0.0",

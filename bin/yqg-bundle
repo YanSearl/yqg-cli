@@ -3,6 +3,7 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
+var prefix = _interopDefault(require('global-prefix'));
 var chalk = _interopDefault(require('chalk'));
 var fs = require('fs');
 var fs__default = _interopDefault(fs);
@@ -159,10 +160,19 @@ var name = "@yqg/cli";
 var version = "0.1.0-alpha.2";
 
 var DEBUG = !!process.env.DEBUG;
+var NODE_ENV = process.env.NODE_ENV;
 var VERSION_CHECK_DISABLE = !!process.env.NODE_ENV;
 var VERSION_CHECK_PERIOD = 86400e3;
 var VERSION_FILE_PATH = '~/.yqg-cli.log';
 var signature = "yqg-cli@".concat(version);
+
+var NPM_PREFIX = prefix;
+var isGlobalInstall = function isGlobalInstall() {
+  return process.argv.some(function (arg, index) {
+    return !index && arg.startsWith('yqg') || arg.startsWith(NPM_PREFIX) && !arg.endsWith('node');
+  });
+};
+var IS_GLOBAL_INSTALL = isGlobalInstall();
 
 var colored = function colored(chalkMethod) {
   for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -235,17 +245,18 @@ var logger = {
 var LOG_TAG = 'check-version';
 var checkVersion = (function () {
   return new Promise(function (resolve, reject) {
-    if (VERSION_CHECK_DISABLE) {
+    logger.info("NODE_ENV=".concat(NODE_ENV, " prefix=").concat(NPM_PREFIX, " isGlobal=").concat(IS_GLOBAL_INSTALL));
+    if (VERSION_CHECK_DISABLE || !IS_GLOBAL_INSTALL) {
       resolve();
       return;
     }
-    var timestamp = 0;
+    var lastTimeUpdated = 0;
     var filePath = expandTilde(VERSION_FILE_PATH);
     if (fs.existsSync(filePath)) {
-      timestamp = +fs.readFileSync(filePath).toString() || 0;
+      lastTimeUpdated = +fs.readFileSync(filePath).toString() || 0;
     }
     var now = Date.now();
-    if (now - timestamp < VERSION_CHECK_PERIOD) {
+    if (now - lastTimeUpdated < VERSION_CHECK_PERIOD) {
       resolve();
       return;
     }
@@ -721,8 +732,8 @@ var DEV_PORT = PORT + 1;
 var FALLBACK_URL_PREFIX_LIST = [
 '/api', '/admin', '/api-web', '/ws', '/print', '/static'];
 var isApiUrl = function isApiUrl(url) {
-  return FALLBACK_URL_PREFIX_LIST.some(function (prefix) {
-    return url.startsWith(prefix);
+  return FALLBACK_URL_PREFIX_LIST.some(function (prefix$$1) {
+    return url.startsWith(prefix$$1);
   });
 };
 var createCompilationPromise = function createCompilationPromise(name, compiler) {
