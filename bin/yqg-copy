@@ -157,7 +157,7 @@ function _nonIterableRest() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.0-beta.0";
+var version = "0.1.0-beta.1";
 
 var DEBUG = !!process.env.DEBUG;
 var NODE_ENV = process.env.NODE_ENV;
@@ -487,8 +487,7 @@ var reactConfig = _objectSpread({
   })), new VersionHashPlugin(), new webpack.ProvidePlugin(_objectSpread({
     React: 'react'
   }, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF)].concat(_toConsumableArray(!DEBUG$1 ? [new ExtractTextPlugin({
-    filename: "[name].[".concat(CSS_HASH, "].css"),
-    allChunks: true
+    filename: "[name].[".concat(CSS_HASH, "].css")
   }), new webpack.optimize.AggressiveMergingPlugin()] : []))
 }, WEBPACK_CLIENT_CONF);
 

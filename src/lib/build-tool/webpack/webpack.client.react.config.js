@@ -130,7 +130,7 @@ export default {
         new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF),
 
         ...(!DEBUG ? [
-            new ExtractTextPlugin({filename: `[name].[${CSS_HASH}].css`, allChunks: true}),
+            new ExtractTextPlugin({filename: `[name].[${CSS_HASH}].css`}),
             new webpack.optimize.AggressiveMergingPlugin()
         ] : [])
     ],
