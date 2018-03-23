@@ -21,23 +21,21 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
 // our modules
 import logger from '../../logger';
 import runServer from '../runServer';
-import {PORT} from '../webpack/build-conf';
+import {PROXY_URL_LIST, PORT} from '../build-conf';
 import stats from '../webpack/stats';
 import clientConfig from '../webpack/webpack.client.config';
 import serverConfig from '../webpack/webpack.server.config';
 
 const DEV_PORT = PORT + 1;
 
-const FALLBACK_URL_PREFIX_LIST = [ // TODO config
+const PROXY_LIST = Array.from(new Set([
     '/api',
     '/admin',
     '/api-web',
-    '/ws',
-    '/print',
-    '/static'
-];
+    ...PROXY_URL_LIST
+]));
 
-const isApiUrl = url => FALLBACK_URL_PREFIX_LIST.some(prefix => url.startsWith(prefix));
+const isApiUrl = url => PROXY_LIST.some(prefix => url.startsWith(prefix));
 
 const createCompilationPromise = (name, compiler) => new Promise((resolve, reject) => {
     const TAG = `Compiling '${name}'`;

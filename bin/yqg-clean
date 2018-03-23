@@ -157,7 +157,7 @@ function _nonIterableRest() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.0-alpha.2";
+var version = "0.1.0-beta.0";
 
 var DEBUG = !!process.env.DEBUG;
 var NODE_ENV = process.env.NODE_ENV;
@@ -304,8 +304,6 @@ var setup = (function () {
   return Promise.all([checkVersion()]);
 });
 
-var config$1 = config.get('yqg');
-
 var STAGE = process.env.NODE_ENV || 'dev';
 var DEV = !/test|feat|prod/.test(STAGE);
 var STAGE_CONF = {
@@ -352,7 +350,27 @@ var _buildConf = buildConf,
     _buildConf$srcMap = _buildConf.srcMap,
     SRC_MAP = _buildConf$srcMap === void 0 ? DEV : _buildConf$srcMap,
     _buildConf$packageJso = _buildConf.packageJsonPath,
-    PACKAGE_JSON_PATH = _buildConf$packageJso === void 0 ? 'package.json' : _buildConf$packageJso;
+    PACKAGE_JSON_PATH = _buildConf$packageJso === void 0 ? 'package.json' : _buildConf$packageJso,
+    _buildConf$serverEntr = _buildConf.serverEntry,
+    WEBPACK_SERVER_ENTRY = _buildConf$serverEntr === void 0 ? './server.js' : _buildConf$serverEntr,
+    _buildConf$server = _buildConf.server,
+    WEBPACK_SERVER_CONF = _buildConf$server === void 0 ? {} : _buildConf$server,
+    _buildConf$global = _buildConf.global,
+    WEBPACK_GLOBALS = _buildConf$global === void 0 ? {} : _buildConf$global,
+    _buildConf$provide = _buildConf.provide,
+    WEBPACK_PROVIDES = _buildConf$provide === void 0 ? {} : _buildConf$provide,
+    _buildConf$htmlPlugin = _buildConf.htmlPlugin,
+    WEBPACK_HTML_PLUGIN_CONF = _buildConf$htmlPlugin === void 0 ? {} : _buildConf$htmlPlugin,
+    _buildConf$clientEntr = _buildConf.clientEntry,
+    WEBPACK_CLIENT_ENTRY = _buildConf$clientEntr === void 0 ? './common/app/index.js' : _buildConf$clientEntr,
+    _buildConf$client = _buildConf.client,
+    WEBPACK_CLIENT_CONF = _buildConf$client === void 0 ? {} : _buildConf$client,
+    _buildConf$clean = _buildConf.clean,
+    CLEAN_CONF = _buildConf$clean === void 0 ? {} : _buildConf$clean,
+    _buildConf$copy = _buildConf.copy,
+    COPY_CONF = _buildConf$copy === void 0 ? {} : _buildConf$copy,
+    _buildConf$devProxy = _buildConf.devProxy,
+    PROXY_URL_LIST = _buildConf$devProxy === void 0 ? [] : _buildConf$devProxy;
 var _runConf = runConf,
     _runConf$apiHost = _runConf.apiHost,
     API_HOST = _runConf$apiHost === void 0 ? '' : _runConf$apiHost,
@@ -410,11 +428,11 @@ var rules = [{
   loader: 'file-loader'
 }];
 
-var reactConfig = {
+var reactConfig = _objectSpread({
   target: 'web',
   mode: MODE,
   entry: {
-    main: './common/app/index.js',
+    main: WEBPACK_CLIENT_ENTRY,
     polyfill: ['es5-shim', 'es5-shim/es5-sham', 'json3', 'babel-polyfill']
   },
   output: {
@@ -464,20 +482,15 @@ var reactConfig = {
       }
     }
   },
-  plugins: [
-  new webpack.DefinePlugin(_objectSpread({}, globals, {
+  plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
     __BROWSER__: true
-  })), new VersionHashPlugin(), new webpack.ProvidePlugin({
-    React: 'react',
-    YqgToast: [resolvePwd('./common/util/yqg-toast'), 'default']
-  }), new HtmlPlugin({
-    template: resolvePwd('./common/app/index.html'),
-    favicon: resolvePwd('./common/app/fav.png')
-  })].concat(_toConsumableArray(!DEBUG$1 ? [new ExtractTextPlugin({
+  })), new VersionHashPlugin(), new webpack.ProvidePlugin(_objectSpread({
+    React: 'react'
+  }, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF)].concat(_toConsumableArray(!DEBUG$1 ? [new ExtractTextPlugin({
     filename: "[name].[".concat(CSS_HASH, "].css"),
     allChunks: true
   }), new webpack.optimize.AggressiveMergingPlugin()] : []))
-};
+}, WEBPACK_CLIENT_CONF);
 
 var FRAMEWORK_MAP = {
   react: reactConfig
@@ -486,7 +499,7 @@ var clientConfig = FRAMEWORK_MAP[FRAMEWORK];
 
 var packageJsonContent = fs__default.readFileSync(resolvePwd(PACKAGE_JSON_PATH)).toString();
 var Package = JSON.parse(packageJsonContent);
-var serverConfig = {
+var serverConfig = _objectSpread({
   target: 'node',
   mode: MODE,
   node: {
@@ -497,7 +510,7 @@ var serverConfig = {
     __filename: false,
     __dirname: false
   },
-  entry: './server.js',
+  entry: WEBPACK_SERVER_ENTRY,
   output: {
     publicPath: '/',
     path: resolvePwd('./build'),
@@ -513,7 +526,7 @@ var serverConfig = {
   plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, {
     __BROWSER__: false
   })), new webpack.optimize.OccurrenceOrderPlugin()]
-};
+}, WEBPACK_SERVER_CONF);
 
 var bundle = (function () {
   return new Promise(function (resolve, reject) {
@@ -540,7 +553,7 @@ var clean = (function () {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _Object$assign = Object.assign({}, DEFAULT_OPTIONS, opts), optsRemove = _Object$assign.remove, recreate = _Object$assign.recreate, optsEnsure = _Object$assign.ensure;
+            _Object$assign = Object.assign({}, DEFAULT_OPTIONS, CLEAN_CONF, opts), optsRemove = _Object$assign.remove, recreate = _Object$assign.recreate, optsEnsure = _Object$assign.ensure;
             removeTargets = typeof optsRemove === 'string' ? [optsRemove] : optsRemove;
             ensureTargets = recreate ? _toConsumableArray(removeTargets) : [];
             if (optsEnsure) {
@@ -668,7 +681,7 @@ _regeneratorRuntime.mark(function _callee() {
         case 0:
           opts = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
           paths = Object.assign({}, DEFAULT_OPTIONS$1.paths, opts.paths);
-          _Object$assign = Object.assign({}, DEFAULT_OPTIONS$1, opts), replaceScripts = _Object$assign.replace;
+          _Object$assign = Object.assign({}, DEFAULT_OPTIONS$1, COPY_CONF, opts), replaceScripts = _Object$assign.replace;
           srcArr = Object.keys(paths);
           _i = 0;
         case 5:
@@ -729,10 +742,9 @@ function runServer(serverPath) {
 process.on('exit', killServer);
 
 var DEV_PORT = PORT + 1;
-var FALLBACK_URL_PREFIX_LIST = [
-'/api', '/admin', '/api-web', '/ws', '/print', '/static'];
+var PROXY_LIST = Array.from(new Set(['/api', '/admin', '/api-web'].concat(_toConsumableArray(PROXY_URL_LIST))));
 var isApiUrl = function isApiUrl(url) {
-  return FALLBACK_URL_PREFIX_LIST.some(function (prefix$$1) {
+  return PROXY_LIST.some(function (prefix$$1) {
     return url.startsWith(prefix$$1);
   });
 };
@@ -898,8 +910,8 @@ var scripts$1 = {
 };
 var run = (function () {
   var _ref = _asyncToGenerator(
-  _regeneratorRuntime.mark(function _callee(name, cmdOpts) {
-    var script, opts;
+  _regeneratorRuntime.mark(function _callee(name, opts) {
+    var script;
     return _regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -913,12 +925,11 @@ var run = (function () {
             return _context.abrupt("return");
           case 4:
             logger.time(name);
-            opts = Object.assign({}, config$1[name], cmdOpts);
-            _context.next = 8;
+            _context.next = 7;
             return script.default ? script.default(opts) : script(opts);
-          case 8:
+          case 7:
             logger.timeEnd(name);
-          case 9:
+          case 8:
           case "end":
             return _context.stop();
         }

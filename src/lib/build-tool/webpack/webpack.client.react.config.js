@@ -10,7 +10,19 @@ import HtmlPlugin from 'html-webpack-plugin';
 import VersionHashPlugin from 'webpack-version-hash-plugin';
 
 import {resolvePwd} from '../../path';
-import {DEBUG, MODE, HASH, CSS_HASH} from './build-conf';
+
+import {
+    DEBUG,
+    MODE,
+    HASH,
+    CSS_HASH,
+
+    WEBPACK_CLIENT_ENTRY,
+    WEBPACK_GLOBALS,
+    WEBPACK_PROVIDES,
+    WEBPACK_HTML_PLUGIN_CONF,
+    WEBPACK_CLIENT_CONF
+} from '../build-conf';
 import globals from './globals';
 import rules from './common-rules';
 
@@ -19,7 +31,7 @@ export default {
     mode: MODE,
 
     entry: {
-        main: './common/app/index.js', // TODO config
+        main: WEBPACK_CLIENT_ENTRY,
         polyfill: [
             'es5-shim',
             'es5-shim/es5-sham',
@@ -101,9 +113,10 @@ export default {
         }
     },
 
-    plugins: [ // TODO config
+    plugins: [
         new webpack.DefinePlugin({
             ...globals,
+            ...WEBPACK_GLOBALS,
             __BROWSER__: true
         }),
 
@@ -111,17 +124,16 @@ export default {
 
         new webpack.ProvidePlugin({
             React: 'react',
-            YqgToast: [resolvePwd('./common/util/yqg-toast'), 'default']
+            ...WEBPACK_PROVIDES
         }),
 
-        new HtmlPlugin({
-            template: resolvePwd('./common/app/index.html'),
-            favicon: resolvePwd('./common/app/fav.png')
-        }),
+        new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF),
 
         ...(!DEBUG ? [
             new ExtractTextPlugin({filename: `[name].[${CSS_HASH}].css`, allChunks: true}),
             new webpack.optimize.AggressiveMergingPlugin()
         ] : [])
-    ]
+    ],
+
+    ...WEBPACK_CLIENT_CONF
 };

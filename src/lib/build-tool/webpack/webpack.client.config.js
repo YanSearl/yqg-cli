@@ -4,7 +4,7 @@
  * @file webpack.client.config
  */
 
-import {FRAMEWORK} from './build-conf';
+import {FRAMEWORK} from '../build-conf';
 import reactConfig from './webpack.client.react.config';
 
 const FRAMEWORK_MAP = {

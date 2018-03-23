@@ -50,7 +50,7 @@ var resolveYqgShell = function resolveYqgShell() {
 var PWD = process.cwd();
 
 var name = "@yqg/cli";
-var version = "0.1.0-alpha.2";
+var version = "0.1.0-beta.0";
 
 var DEBUG = !!process.env.DEBUG;
 var NODE_ENV = process.env.NODE_ENV;

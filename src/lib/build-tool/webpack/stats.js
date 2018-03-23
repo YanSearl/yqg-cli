@@ -4,7 +4,7 @@
  * @file stats
  */
 
-import {DEBUG, VERBOSE} from './build-conf';
+import {DEBUG, VERBOSE} from '../build-conf';
 
 export default {
     colors: true,

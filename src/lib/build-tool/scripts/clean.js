@@ -6,6 +6,7 @@
 /* eslint-disable no-restricted-syntax, no-await-in-loop */
 
 import {remove, ensureDir} from 'fs-extra';
+import {CLEAN_CONF} from '../build-conf';
 
 const DEFAULT_OPTIONS = {
     remove: 'build', // string or arrays of string, dirs to be removed
@@ -14,7 +15,7 @@ const DEFAULT_OPTIONS = {
 };
 
 export default async (opts) => {
-    const {remove: optsRemove, recreate, ensure: optsEnsure} = Object.assign({}, DEFAULT_OPTIONS, opts);
+    const {remove: optsRemove, recreate, ensure: optsEnsure} = Object.assign({}, DEFAULT_OPTIONS, CLEAN_CONF, opts);
     const removeTargets = typeof optsRemove === 'string' ? [optsRemove] : optsRemove;
     const ensureTargets = recreate ? [...removeTargets] : [];
     if (optsEnsure) {

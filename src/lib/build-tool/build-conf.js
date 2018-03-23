@@ -57,7 +57,25 @@ export const { // default value for buildConf
     cssHash: CSS_HASH = DEV ? 'hash' : 'contenthash',
     srcMap: SRC_MAP = DEV,
 
-    packageJsonPath: PACKAGE_JSON_PATH = 'package.json'
+    packageJsonPath: PACKAGE_JSON_PATH = 'package.json',
+
+    // webpack server config
+    serverEntry: WEBPACK_SERVER_ENTRY = './server.js',
+    server: WEBPACK_SERVER_CONF = {},
+
+    // webpack client config
+    global: WEBPACK_GLOBALS = {},
+    provide: WEBPACK_PROVIDES = {},
+    htmlPlugin: WEBPACK_HTML_PLUGIN_CONF = {},
+    clientEntry: WEBPACK_CLIENT_ENTRY = './common/app/index.js',
+    client: WEBPACK_CLIENT_CONF = {},
+
+    // script clean & copy
+    clean: CLEAN_CONF = {},
+    copy: COPY_CONF = {},
+
+    // script start
+    devProxy: PROXY_URL_LIST = []
 } = buildConf;
 
 export const {

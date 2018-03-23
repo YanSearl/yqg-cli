@@ -6,7 +6,7 @@
  * default globals
  */
 
-import {STAGE, DEBUG, API_HOST, WEB_HOST, CHIDORI_HOST} from './build-conf';
+import {STAGE, DEBUG, API_HOST, WEB_HOST, CHIDORI_HOST} from '../build-conf';
 
 export default {
     __STAGE__: JSON.stringify(STAGE),

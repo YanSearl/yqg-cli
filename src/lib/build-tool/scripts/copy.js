@@ -8,7 +8,7 @@
 import {copy, existsSync} from 'fs-extra';
 import replace from 'replace';
 
-import {PACKAGE_JSON_PATH} from '../webpack/build-conf';
+import {PACKAGE_JSON_PATH, COPY_CONF} from '../build-conf';
 
 const DEFAULT_OPTIONS = {
     paths: { // path src => dest as key => value
@@ -24,7 +24,7 @@ const DEFAULT_OPTIONS = {
 
 export default async (opts = {}) => {
     const paths = Object.assign({}, DEFAULT_OPTIONS.paths, opts.paths);
-    const {replace: replaceScripts} = Object.assign({}, DEFAULT_OPTIONS, opts);
+    const {replace: replaceScripts} = Object.assign({}, DEFAULT_OPTIONS, COPY_CONF, opts);
 
     const srcArr = Object.keys(paths);
     for (const src of srcArr) {
