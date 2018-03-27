@@ -157,7 +157,7 @@ function _nonIterableRest() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.0-beta.3";
+var version = "0.1.0-beta.4";
 
 var DEBUG = !!process.env.DEBUG;
 var NODE_ENV = process.env.NODE_ENV;
@@ -308,19 +308,29 @@ var STAGE = process.env.NODE_ENV || 'dev';
 var DEV = !/test|feat|prod/.test(STAGE);
 var STAGE_CONF = {
   dev: {
+    chidoriApiHost: 'https://chidori-api-test.yangqianguan.com',
     chidoriHost: 'https://chidori-admin-test.yangqianguan.com'
   },
   test: {
+    chidoriApiHost: 'https://chidori-api-feat.yangqianguan.com',
     chidoriHost: 'https://chidori-admin-test.yangqianguan.com'
   },
   feat: {
+    chidoriApiHost: 'https://chidori-api-test.yangqianguan.com',
     chidoriHost: 'https://chidori-admin-feat.yangqianguan.com'
   },
   prod: {
+    chidoriApiHost: 'https://chidori-api-admin.yangqianguan.com',
     chidoriHost: 'https://chidori-admin.yangqianguan.com'
   }
 };
+Object.assign(STAGE_CONF, {
+  'aws-test': STAGE_CONF.test,
+  'aws-feat': STAGE_CONF.feat,
+  'aws-prod': STAGE_CONF.prod
+});
 var _ref = STAGE_CONF[STAGE] || STAGE_CONF.dev,
+    CHIDORI_API_HOST = _ref.chidoriApiHost,
     CHIDORI_HOST = _ref.chidoriHost;
 var buildConf;
 var runConf;
@@ -351,12 +361,14 @@ var _buildConf = buildConf,
     SRC_MAP = _buildConf$srcMap === void 0 ? DEV : _buildConf$srcMap,
     _buildConf$packageJso = _buildConf.packageJsonPath,
     PACKAGE_JSON_PATH = _buildConf$packageJso === void 0 ? 'package.json' : _buildConf$packageJso,
+    _buildConf$global = _buildConf.global,
+    WEBPACK_GLOBALS = _buildConf$global === void 0 ? {} : _buildConf$global,
     _buildConf$serverEntr = _buildConf.serverEntry,
     WEBPACK_SERVER_ENTRY = _buildConf$serverEntr === void 0 ? './server.js' : _buildConf$serverEntr,
     _buildConf$server = _buildConf.server,
     WEBPACK_SERVER_CONF = _buildConf$server === void 0 ? {} : _buildConf$server,
-    _buildConf$global = _buildConf.global,
-    WEBPACK_GLOBALS = _buildConf$global === void 0 ? {} : _buildConf$global,
+    _buildConf$alias = _buildConf.alias,
+    WEBPACK_ALIAS = _buildConf$alias === void 0 ? {} : _buildConf$alias,
     _buildConf$provide = _buildConf.provide,
     WEBPACK_PROVIDES = _buildConf$provide === void 0 ? {} : _buildConf$provide,
     _buildConf$htmlPlugin = _buildConf.htmlPlugin,
@@ -402,8 +414,10 @@ var resolvePwd = function resolvePwd() {
 var globals = {
   __STAGE__: JSON.stringify(STAGE),
   __DEBUG__: DEBUG$1,
+  __CDN_HOST__: JSON.stringify(''),
   __API_HOST__: JSON.stringify(API_HOST),
   __WEB_HOST__: JSON.stringify(WEB_HOST),
+  __CHIDORI_API_HOST__: JSON.stringify(CHIDORI_API_HOST),
   __CHIDORI_HOST__: JSON.stringify(CHIDORI_HOST)
 };
 
@@ -428,7 +442,95 @@ var rules = [{
   loader: 'file-loader'
 }];
 
-var reactConfig = _objectSpread({
+var rules$1 = rules.filter(function (rule) {
+  return rule.loader !== 'babel-loader';
+});
+rules$1.push.apply(rules$1, [{
+  test: /\.jsx?$/,
+  use: [{
+    loader: 'ng-annotate-loader',
+    options: {
+      add: true,
+      map: false
+    }
+  }, {
+    loader: 'babel-loader'
+  }],
+  exclude: /node_modules/
+}].concat(_toConsumableArray(DEBUG$1 ? [{
+  test: /\.css$/,
+  use: ['style-loader', 'css-loader']
+}, {
+  test: /\.scss$/,
+  use: ['style-loader', 'css-loader', 'sass-loader']
+}] : [{
+  test: /\.css$/,
+  loader: ExtractTextPlugin.extract('css-loader')
+}, {
+  test: /\.scss$/,
+  loader: ExtractTextPlugin.extract(['css-loader', 'sass-loader'])
+}])));
+var angular = _objectSpread({
+  target: 'web',
+  mode: MODE,
+  entry: {
+    main: WEBPACK_CLIENT_ENTRY,
+    polyfill: ['es5-shim', 'es5-shim/es5-sham', 'json3', 'babel-polyfill']
+  },
+  output: {
+    publicPath: '/',
+    path: resolvePwd('./build/public'),
+    filename: "[name].[".concat(HASH, "].js")
+  },
+  devtool: SRC_MAP ? 'cheap-module-eval-source-map' : false,
+  cache: DEBUG$1,
+  module: {
+    rules: rules$1
+  },
+  resolve: {
+    alias: _objectSpread({}, WEBPACK_ALIAS)
+  },
+  optimization: {
+    runtimeChunk: {
+      name: 'manifest'
+    },
+    splitChunks: {
+      maxAsyncRequests: 10,
+      maxInitialRequests: 10,
+      cacheGroups: {
+        polyfill: {
+          chunks: 'all',
+          test: 'polyfill',
+          name: 'polyfill',
+          priority: -5
+        },
+        angular: {
+          chunks: 'all',
+          test: /[\\/]node_modules[\\/](angular)/,
+          priority: -5
+        },
+        vendor: {
+          chunks: 'all',
+          test: /[\\/]node_modules[\\/]/,
+          priority: -10
+        }
+      }
+    }
+  },
+  plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
+    __BROWSER__: true
+  })), new webpack.ProvidePlugin(_objectSpread({
+    '$': 'jquery',
+    'jQuery': 'jquery',
+    'window.jQuery': 'jquery'
+  }, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new ExtractTextPlugin({
+    filename: "[name].[".concat(CSS_HASH, "].css"),
+    disable: false,
+    allChunks: true
+  })] : []))
+}, WEBPACK_CLIENT_CONF);
+
+var react = _objectSpread({
   target: 'web',
   mode: MODE,
   entry: {
@@ -485,15 +587,16 @@ var reactConfig = _objectSpread({
   },
   plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
     __BROWSER__: true
-  })), new VersionHashPlugin(), new webpack.ProvidePlugin(_objectSpread({
+  })), new webpack.ProvidePlugin(_objectSpread({
     React: 'react'
-  }, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF)].concat(_toConsumableArray(!DEBUG$1 ? [new ExtractTextPlugin({
+  }, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new ExtractTextPlugin({
     filename: "[name].[".concat(CSS_HASH, "].css")
-  }), new webpack.optimize.AggressiveMergingPlugin()] : []))
+  }), new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin()] : []))
 }, WEBPACK_CLIENT_CONF);
 
 var FRAMEWORK_MAP = {
-  react: reactConfig
+  angular: angular,
+  react: react
 };
 var clientConfig = FRAMEWORK_MAP[FRAMEWORK];
 
@@ -523,7 +626,7 @@ var serverConfig = _objectSpread({
     rules: rules
   },
   externals: _toConsumableArray(Object.keys(Package.dependencies)).concat(_toConsumableArray(Object.keys(Package.devDependencies))),
-  plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, {
+  plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
     __BROWSER__: false
   })), new webpack.optimize.OccurrenceOrderPlugin()]
 }, WEBPACK_SERVER_CONF);
@@ -707,7 +810,7 @@ _regeneratorRuntime.mark(function _callee() {
             replace({
               regex: '"scripts": {(.|\n)*?}',
               replacement: '"scripts": {\n    "start": "node server.js"\n  }',
-              paths: [paths['package.json']],
+              paths: [paths[PACKAGE_JSON_PATH]],
               recursive: false,
               silent: false
             });
@@ -744,7 +847,7 @@ function runServer(serverPath) {
 process.on('exit', killServer);
 
 var DEV_PORT = PORT + 1;
-var PROXY_LIST = Array.from(new Set(['/api', '/admin', '/api-web'].concat(_toConsumableArray(PROXY_URL_LIST))));
+var PROXY_LIST = Array.from(new Set(['/api', '/admin', '/api-web', '/chidori'].concat(_toConsumableArray(PROXY_URL_LIST))));
 var isApiUrl = function isApiUrl(url) {
   return PROXY_LIST.some(function (prefix$$1) {
     return url.startsWith(prefix$$1);

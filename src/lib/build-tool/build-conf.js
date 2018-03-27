@@ -12,23 +12,36 @@ export const DEV = !(/test|feat|prod/.test(STAGE));
 // common config shared between projects
 const STAGE_CONF = {
     dev: {
+        chidoriApiHost: 'https://chidori-api-test.yangqianguan.com',
         chidoriHost: 'https://chidori-admin-test.yangqianguan.com'
     },
 
     test: {
+        chidoriApiHost: 'https://chidori-api-feat.yangqianguan.com',
         chidoriHost: 'https://chidori-admin-test.yangqianguan.com'
     },
 
     feat: {
+        chidoriApiHost: 'https://chidori-api-test.yangqianguan.com',
         chidoriHost: 'https://chidori-admin-feat.yangqianguan.com'
     },
 
     prod: {
+        chidoriApiHost: 'https://chidori-api-admin.yangqianguan.com',
         chidoriHost: 'https://chidori-admin.yangqianguan.com'
     }
 };
 
-export const {chidoriHost: CHIDORI_HOST} = STAGE_CONF[STAGE] || STAGE_CONF.dev;
+Object.assign(STAGE_CONF, {
+    'aws-test': STAGE_CONF.test,
+    'aws-feat': STAGE_CONF.feat,
+    'aws-prod': STAGE_CONF.prod
+});
+
+export const {
+    chidoriApiHost: CHIDORI_API_HOST,
+    chidoriHost: CHIDORI_HOST
+} = STAGE_CONF[STAGE] || STAGE_CONF.dev;
 
 let buildConf;
 let runConf;
@@ -45,6 +58,7 @@ try {
     runConf = {};
 }
 
+// TODO use framework conf to fill default value
 // customizable config
 export const { // default value for buildConf
     debug: DEBUG = DEV,
@@ -58,13 +72,14 @@ export const { // default value for buildConf
     srcMap: SRC_MAP = DEV,
 
     packageJsonPath: PACKAGE_JSON_PATH = 'package.json',
+    global: WEBPACK_GLOBALS = {},
 
     // webpack server config
     serverEntry: WEBPACK_SERVER_ENTRY = './server.js',
     server: WEBPACK_SERVER_CONF = {},
 
     // webpack client config
-    global: WEBPACK_GLOBALS = {},
+    alias: WEBPACK_ALIAS = {},
     provide: WEBPACK_PROVIDES = {},
     htmlPlugin: WEBPACK_HTML_PLUGIN_CONF = {},
     clientEntry: WEBPACK_CLIENT_ENTRY = './common/app/index.js',

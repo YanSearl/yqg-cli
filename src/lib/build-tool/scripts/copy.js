@@ -38,7 +38,7 @@ export default async (opts = {}) => {
         replace({
             regex: '"scripts": {(.|\n)*?}',
             replacement: '"scripts": {\n    "start": "node server.js"\n  }',
-            paths: [paths['package.json']],
+            paths: [paths[PACKAGE_JSON_PATH]],
             recursive: false,
             silent: false
         });

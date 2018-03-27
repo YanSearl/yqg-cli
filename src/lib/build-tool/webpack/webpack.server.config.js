@@ -8,7 +8,17 @@ import fs from 'fs';
 import webpack from 'webpack';
 
 import {resolvePwd} from '../../path';
-import {DEBUG, MODE, SRC_MAP, PACKAGE_JSON_PATH, WEBPACK_SERVER_ENTRY, WEBPACK_SERVER_CONF} from '../build-conf';
+
+import {
+    DEBUG,
+    MODE,
+    SRC_MAP,
+    PACKAGE_JSON_PATH,
+    WEBPACK_GLOBALS,
+    WEBPACK_SERVER_ENTRY,
+    WEBPACK_SERVER_CONF
+} from '../build-conf';
+
 import globals from './globals';
 import rules from './common-rules';
 
@@ -48,6 +58,7 @@ export default {
     plugins: [
         new webpack.DefinePlugin({
             ...globals,
+            ...WEBPACK_GLOBALS,
             __BROWSER__: false
         }),
 

@@ -5,10 +5,12 @@
  */
 
 import {FRAMEWORK} from '../build-conf';
-import reactConfig from './webpack.client.react.config';
+import angular from './webpack.client.angular.config';
+import react from './webpack.client.react.config';
 
 const FRAMEWORK_MAP = {
-    react: reactConfig
+    angular,
+    react
 };
 
 export default FRAMEWORK_MAP[FRAMEWORK];

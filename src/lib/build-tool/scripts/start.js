@@ -32,6 +32,7 @@ const PROXY_LIST = Array.from(new Set([
     '/api',
     '/admin',
     '/api-web',
+    '/chidori',
     ...PROXY_URL_LIST
 ]));
 

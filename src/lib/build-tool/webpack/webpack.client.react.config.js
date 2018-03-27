@@ -121,18 +121,18 @@ export default {
             __BROWSER__: true
         }),
 
-        new VersionHashPlugin(),
-
         new webpack.ProvidePlugin({
             React: 'react',
             ...WEBPACK_PROVIDES
         }),
 
         new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF),
+        new VersionHashPlugin(),
 
         ...(!DEBUG ? [
             new ExtractTextPlugin({filename: `[name].[${CSS_HASH}].css`}),
-            new webpack.optimize.AggressiveMergingPlugin()
+            new webpack.optimize.AggressiveMergingPlugin(),
+            new webpack.optimize.OccurrenceOrderPlugin()
         ] : [])
     ],
 
