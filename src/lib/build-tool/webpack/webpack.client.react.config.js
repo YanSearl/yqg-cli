@@ -43,7 +43,8 @@ export default {
     output: {
         publicPath: '/',
         path: resolvePwd('./build/public/'),
-        filename: `[name].[${HASH}].js`
+        filename: `[name].[${HASH}].js`,
+        globalObject: 'this'
     },
 
     module: {
