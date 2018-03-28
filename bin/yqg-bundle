@@ -157,7 +157,7 @@ function _nonIterableRest() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.0-beta.2";
+var version = "0.1.0-beta.3";
 
 var DEBUG = !!process.env.DEBUG;
 var NODE_ENV = process.env.NODE_ENV;
@@ -674,33 +674,35 @@ _regeneratorRuntime.mark(function _callee() {
       srcArr,
       _i,
       src,
+      dest,
       _args = arguments;
   return _regeneratorRuntime.wrap(function _callee$(_context) {
     while (1) {
       switch (_context.prev = _context.next) {
         case 0:
           opts = _args.length > 0 && _args[0] !== undefined ? _args[0] : {};
-          paths = Object.assign({}, DEFAULT_OPTIONS$1.paths, opts.paths);
+          paths = Object.assign({}, DEFAULT_OPTIONS$1.paths, COPY_CONF.paths, opts.paths);
           _Object$assign = Object.assign({}, DEFAULT_OPTIONS$1, COPY_CONF, opts), replaceScripts = _Object$assign.replace;
           srcArr = Object.keys(paths);
           _i = 0;
         case 5:
           if (!(_i < srcArr.length)) {
-            _context.next = 13;
+            _context.next = 14;
             break;
           }
           src = srcArr[_i];
           if (!fsExtra.existsSync(src)) {
-            _context.next = 10;
+            _context.next = 11;
             break;
           }
-          _context.next = 10;
-          return fsExtra.copy(src, paths[src]);
-        case 10:
+          dest = paths[src];
+          _context.next = 11;
+          return fsExtra.copy(src, dest);
+        case 11:
           _i++;
           _context.next = 5;
           break;
-        case 13:
+        case 14:
           if (replaceScripts) {
             replace({
               regex: '"scripts": {(.|\n)*?}',
@@ -710,7 +712,7 @@ _regeneratorRuntime.mark(function _callee() {
               silent: false
             });
           }
-        case 14:
+        case 15:
         case "end":
           return _context.stop();
       }

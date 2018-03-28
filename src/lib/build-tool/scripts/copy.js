@@ -23,13 +23,14 @@ const DEFAULT_OPTIONS = {
 };
 
 export default async (opts = {}) => {
-    const paths = Object.assign({}, DEFAULT_OPTIONS.paths, opts.paths);
+    const paths = Object.assign({}, DEFAULT_OPTIONS.paths, COPY_CONF.paths, opts.paths);
     const {replace: replaceScripts} = Object.assign({}, DEFAULT_OPTIONS, COPY_CONF, opts);
 
     const srcArr = Object.keys(paths);
     for (const src of srcArr) {
         if (existsSync(src)) {
-            await copy(src, paths[src]);
+            const dest = paths[src];
+            await copy(src, dest);
         }
     }
 
