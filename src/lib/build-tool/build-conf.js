@@ -62,6 +62,7 @@ try {
 // customizable config
 export const { // default value for buildConf
     debug: DEBUG = DEV,
+    vueDebug: VUE_DEBUG = DEV,
     verbose: VERBOSE = DEV,
 
     mode: MODE = DEV ? 'development' : 'production',
