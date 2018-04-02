@@ -119,7 +119,7 @@ function _nonIterableSpread() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.0-beta.5";
+var version = "0.1.0-beta.6";
 
 var DEBUG = !!process.env.DEBUG;
 var NODE_ENV = process.env.NODE_ENV;
