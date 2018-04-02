@@ -5,8 +5,10 @@
  */
 
 import webpack from 'webpack';
-import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import HtmlPlugin from 'html-webpack-plugin';
+import UglifyJsPlugin from 'uglifyjs-webpack-plugin';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import VersionHashPlugin from 'webpack-version-hash-plugin';
 
 import {resolvePwd} from '../../path';
@@ -21,8 +23,9 @@ import {
     WEBPACK_GLOBALS,
     WEBPACK_PROVIDES,
     WEBPACK_HTML_PLUGIN_CONF,
-    WEBPACK_CLIENT_CONF
+    WEBPACK_CLIENT_CONF, SRC_MAP
 } from '../build-conf';
+
 import globals from './globals';
 import rules from './common-rules';
 
@@ -46,6 +49,11 @@ export default {
         filename: `[name].[${HASH}].js`,
         globalObject: 'this'
     },
+
+    // Choose a developer tool to enhance debugging
+    // https://webpack.js.org/configuration/devtool/
+    devtool: SRC_MAP ? 'cheap-module-eval-source-map' : false,
+    cache: DEBUG,
 
     module: {
         rules: [
@@ -78,15 +86,19 @@ export default {
                 : [
                     {
                         test: /\.css$/,
-                        loader: ExtractTextPlugin.extract('css-loader')
+                        loader: [
+                            MiniCssExtractPlugin.loader,
+                            'css-loader'
+                        ]
                     },
                     {
                         test: /\.scss$/,
-                        loader: ExtractTextPlugin.extract([
+                        loader: [
+                            MiniCssExtractPlugin.loader,
                             'css-loader',
                             'resolve-url-loader',
                             'sass-loader?sourceMap'
-                        ])
+                        ]
                     }
                 ])
         ]
@@ -128,7 +140,19 @@ export default {
                     priority: -10
                 }
             }
-        }
+        },
+
+        ...(DEBUG ? {} : {
+            minimizer: [
+                new UglifyJsPlugin({
+                    cache: DEBUG,
+                    parallel: true,
+                    sourceMap: SRC_MAP
+                }),
+
+                new OptimizeCSSAssetsPlugin({})
+            ]
+        })
     },
 
     plugins: [
@@ -146,7 +170,7 @@ export default {
         ...(!DEBUG ? [
             new webpack.optimize.AggressiveMergingPlugin(),
             new webpack.optimize.OccurrenceOrderPlugin(),
-            new ExtractTextPlugin({filename: `[name].[${CSS_HASH}].css`, disable: false, allChunks: true})
+            new MiniCssExtractPlugin({filename: `[name].[${CSS_HASH}].css`})
         ] : [])
     ],
 

@@ -50,7 +50,7 @@ var resolveYqgShell = function resolveYqgShell() {
 var PWD = process.cwd();
 
 var name = "@yqg/cli";
-var version = "0.1.0-beta.6";
+var version = "0.1.0-beta.7";
 
 var DEBUG = !!process.env.DEBUG;
 var NODE_ENV = process.env.NODE_ENV;
@@ -195,6 +195,8 @@ process.on('uncaughtException', function (err) {
   } else {
     console.log('异常退出');
   }
+
+  process.exit(1);
 });
 process.on('unhandledRejection', function (err, promise) {
   console.log(); // 换行
@@ -204,6 +206,8 @@ process.on('unhandledRejection', function (err, promise) {
   } else {
     console.log('已退出');
   }
+
+  process.exit(1);
 });
 var setup = (function () {
   return Promise.all([checkVersion()]);

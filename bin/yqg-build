@@ -14,8 +14,10 @@ var config = _interopDefault(require('config'));
 var path = require('path');
 var path__default = _interopDefault(path);
 var webpack = _interopDefault(require('webpack'));
-var ExtractTextPlugin = _interopDefault(require('extract-text-webpack-plugin'));
 var HtmlPlugin = _interopDefault(require('html-webpack-plugin'));
+var UglifyJsPlugin = _interopDefault(require('uglifyjs-webpack-plugin'));
+var MiniCssExtractPlugin = _interopDefault(require('mini-css-extract-plugin'));
+var OptimizeCSSAssetsPlugin = _interopDefault(require('optimize-css-assets-webpack-plugin'));
 var VersionHashPlugin = _interopDefault(require('webpack-version-hash-plugin'));
 var _regeneratorRuntime = _interopDefault(require('@babel/runtime/regenerator'));
 var fsExtra = require('fs-extra');
@@ -119,7 +121,7 @@ function _nonIterableSpread() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.0-beta.6";
+var version = "0.1.0-beta.7";
 
 var DEBUG = !!process.env.DEBUG;
 var NODE_ENV = process.env.NODE_ENV;
@@ -252,6 +254,8 @@ process.on('uncaughtException', function (err) {
   } else {
     console.log('异常退出');
   }
+
+  process.exit(1);
 });
 process.on('unhandledRejection', function (err, promise) {
   console.log(); // 换行
@@ -261,6 +265,8 @@ process.on('unhandledRejection', function (err, promise) {
   } else {
     console.log('已退出');
   }
+
+  process.exit(1);
 });
 var setup = (function () {
   return Promise.all([checkVersion()]);
@@ -427,13 +433,13 @@ rules$1.push.apply(rules$1, [{
   use: ['style-loader', 'css-loader']
 }, {
   test: /\.scss$/,
-  use: ['style-loader', 'css-loader', 'sass-loader']
+  use: ['style-loader', 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
 }] : [{
   test: /\.css$/,
-  loader: ExtractTextPlugin.extract('css-loader')
+  loader: [MiniCssExtractPlugin.loader, 'css-loader']
 }, {
   test: /\.scss$/,
-  loader: ExtractTextPlugin.extract(['css-loader', 'sass-loader'])
+  loader: [MiniCssExtractPlugin.loader, 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
 }])));
 var angular = _objectSpread({
   target: 'web',
@@ -445,7 +451,8 @@ var angular = _objectSpread({
   output: {
     publicPath: '/',
     path: resolvePwd('./build/public'),
-    filename: "[name].[".concat(HASH, "].js")
+    filename: "[name].[".concat(HASH, "].js"),
+    globalObject: 'this'
   },
   devtool: SRC_MAP ? 'cheap-module-eval-source-map' : false,
   cache: DEBUG$1,
@@ -455,7 +462,7 @@ var angular = _objectSpread({
   resolve: {
     alias: _objectSpread({}, WEBPACK_ALIAS)
   },
-  optimization: {
+  optimization: _objectSpread({
     runtimeChunk: {
       name: 'manifest'
     },
@@ -481,17 +488,21 @@ var angular = _objectSpread({
         }
       }
     }
-  },
+  }, DEBUG$1 ? {} : {
+    minimizer: [new UglifyJsPlugin({
+      cache: DEBUG$1,
+      parallel: true,
+      sourceMap: SRC_MAP
+    }), new OptimizeCSSAssetsPlugin({})]
+  }),
   plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
     __BROWSER__: true
   })), new webpack.ProvidePlugin(_objectSpread({
     '$': 'jquery',
     'jQuery': 'jquery',
     'window.jQuery': 'jquery'
-  }, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new ExtractTextPlugin({
-    filename: "[name].[".concat(CSS_HASH, "].css"),
-    disable: false,
-    allChunks: true
+  }, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new MiniCssExtractPlugin({
+    filename: "[name].[".concat(CSS_HASH, "].css")
   })] : []))
 }, WEBPACK_CLIENT_CONF);
 
@@ -508,22 +519,24 @@ var react = _objectSpread({
     filename: "[name].[".concat(HASH, "].js"),
     globalObject: 'this'
   },
+  devtool: SRC_MAP ? 'cheap-module-eval-source-map' : false,
+  cache: DEBUG$1,
   module: {
     rules: _toConsumableArray(rules).concat(_toConsumableArray(DEBUG$1 ? [{
       test: /\.css$/,
       use: ['style-loader', 'css-loader']
     }, {
       test: /\.scss$/,
-      use: ['style-loader', 'css-loader', 'sass-loader']
+      use: ['style-loader', 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
     }] : [{
       test: /\.css$/,
-      loader: ExtractTextPlugin.extract('css-loader')
+      loader: [MiniCssExtractPlugin.loader, 'css-loader']
     }, {
       test: /\.scss$/,
-      loader: ExtractTextPlugin.extract(['css-loader', 'sass-loader'])
+      loader: [MiniCssExtractPlugin.loader, 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
     }]))
   },
-  optimization: {
+  optimization: _objectSpread({
     runtimeChunk: {
       name: 'manifest'
     },
@@ -549,14 +562,20 @@ var react = _objectSpread({
         }
       }
     }
-  },
+  }, DEBUG$1 ? {} : {
+    minimizer: [new UglifyJsPlugin({
+      cache: DEBUG$1,
+      parallel: true,
+      sourceMap: SRC_MAP
+    }), new OptimizeCSSAssetsPlugin({})]
+  }),
   plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
     __BROWSER__: true
   })), new webpack.ProvidePlugin(_objectSpread({
     React: 'react'
-  }, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new ExtractTextPlugin({
+  }, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new MiniCssExtractPlugin({
     filename: "[name].[".concat(CSS_HASH, "].css")
-  }), new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin()] : []))
+  })] : []))
 }, WEBPACK_CLIENT_CONF);
 
 var vue = _objectSpread({
@@ -572,6 +591,8 @@ var vue = _objectSpread({
     filename: "[name].[".concat(HASH, "].js"),
     globalObject: 'this'
   },
+  devtool: SRC_MAP ? 'cheap-module-eval-source-map' : false,
+  cache: DEBUG$1,
   module: {
     rules: _toConsumableArray(rules).concat([{
       test: /\.vue$/,
@@ -585,10 +606,10 @@ var vue = _objectSpread({
       use: ['style-loader', 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
     }] : [{
       test: /\.css$/,
-      loader: ExtractTextPlugin.extract('css-loader')
+      loader: [MiniCssExtractPlugin.loader, 'css-loader']
     }, {
       test: /\.scss$/,
-      loader: ExtractTextPlugin.extract(['css-loader', 'resolve-url-loader', 'sass-loader?sourceMap'])
+      loader: [MiniCssExtractPlugin.loader, 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
     }]))
   },
   resolve: {
@@ -597,7 +618,7 @@ var vue = _objectSpread({
     },
     extensions: ['.js', '.vue', '.json']
   },
-  optimization: {
+  optimization: _objectSpread({
     runtimeChunk: {
       name: 'manifest'
     },
@@ -623,13 +644,17 @@ var vue = _objectSpread({
         }
       }
     }
-  },
+  }, DEBUG$1 ? {} : {
+    minimizer: [new UglifyJsPlugin({
+      cache: DEBUG$1,
+      parallel: true,
+      sourceMap: SRC_MAP
+    }), new OptimizeCSSAssetsPlugin({})]
+  }),
   plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
     __BROWSER__: true
-  })), new webpack.ProvidePlugin(_objectSpread({}, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new ExtractTextPlugin({
-    filename: "[name].[".concat(CSS_HASH, "].css"),
-    disable: false,
-    allChunks: true
+  })), new webpack.ProvidePlugin(_objectSpread({}, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new MiniCssExtractPlugin({
+    filename: "[name].[".concat(CSS_HASH, "].css")
   })] : []))
 }, WEBPACK_CLIENT_CONF);
 

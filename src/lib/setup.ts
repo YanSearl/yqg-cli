@@ -15,6 +15,8 @@ process.on('uncaughtException', (err) => {
     } else {
         console.log('异常退出');
     }
+
+    process.exit(1);
 });
 
 process.on('unhandledRejection', (err, promise) => {
@@ -25,6 +27,8 @@ process.on('unhandledRejection', (err, promise) => {
     } else {
         console.log('已退出');
     }
+
+    process.exit(1);
 });
 
 export default () => Promise.all([
