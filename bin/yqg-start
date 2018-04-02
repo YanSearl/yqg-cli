@@ -98,10 +98,6 @@ function _objectSpread(target) {
   return target;
 }
 
-function _slicedToArray(arr, i) {
-  return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
-}
-
 function _toConsumableArray(arr) {
   return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
 }
@@ -114,50 +110,16 @@ function _arrayWithoutHoles(arr) {
   }
 }
 
-function _arrayWithHoles(arr) {
-  if (Array.isArray(arr)) return arr;
-}
-
 function _iterableToArray(iter) {
   if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
-}
-
-function _iterableToArrayLimit(arr, i) {
-  var _arr = [];
-  var _n = true;
-  var _d = false;
-  var _e = undefined;
-
-  try {
-    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-      _arr.push(_s.value);
-
-      if (i && _arr.length === i) break;
-    }
-  } catch (err) {
-    _d = true;
-    _e = err;
-  } finally {
-    try {
-      if (!_n && _i["return"] != null) _i["return"]();
-    } finally {
-      if (_d) throw _e;
-    }
-  }
-
-  return _arr;
 }
 
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
 }
 
-function _nonIterableRest() {
-  throw new TypeError("Invalid attempt to destructure non-iterable instance");
-}
-
 var name = "@yqg/cli";
-var version = "0.1.0-beta.4";
+var version = "0.1.0-beta.5";
 
 var DEBUG = !!process.env.DEBUG;
 var NODE_ENV = process.env.NODE_ENV;
@@ -711,7 +673,11 @@ var serverConfig = _objectSpread({
 
 var bundle = (function () {
   return new Promise(function (resolve, reject) {
-    webpack([clientConfig, serverConfig]).run(function (err, stats$$1) {
+    var webpackConfig = [serverConfig];
+    if (clientConfig) {
+      webpackConfig.push(clientConfig);
+    }
+    webpack(webpackConfig).run(function (err, stats$$1) {
       if (err) {
         return reject(err);
       }
@@ -979,13 +945,35 @@ function _launchServer() {
   }));
   return _launchServer.apply(this, arguments);
 }
+function setupClientBundle(devServer) {
+  if (!clientConfig) return Promise.resolve();
+  var clientWebpackHMREntry = 'webpack-hot-middleware/client?reload=true';
+  clientConfig.entry = _objectSpread({}, clientConfig.entry, {
+    main: [clientWebpackHMREntry, clientConfig.entry.main]
+  });
+  clientConfig.plugins.push(new webpack.HotModuleReplacementPlugin(), new webpack.NoEmitOnErrorsPlugin(), new webpack.NamedModulesPlugin());
+  var clientCompiler = webpack(clientConfig);
+  var clientPromise = createCompilationPromise('client', clientCompiler);
+  var fallbackMiddleware = historyApiFallback({
+    verbose: true
+  });
+  var hotMiddleware = webpackHotMiddleware(clientCompiler);
+  var devMiddleware = webpackDevMiddleware(clientCompiler, {
+    publicPath: clientConfig.output.publicPath,
+    stats: stats
+  });
+  devServer.use(fallbackMiddleware);
+  devServer.use(devMiddleware);
+  devServer.use(hotMiddleware);
+  return clientPromise;
+}
 function start() {
   return _start.apply(this, arguments);
 }
 function _start() {
   _start = _asyncToGenerator(
   _regeneratorRuntime.mark(function _callee3() {
-    var clientWebpackHMREntry, bundler, _bundler$compilers, clientCompiler, serverCompiler, clientPromise, serverPromise, hotMiddleware, devMiddleware, proxyMiddleware, fallbackMiddleware, runServerPromise, runServerPromiseResolve, runServerPromiseIsResolved, devServer, run, _run;
+    var devServer, proxyMiddleware, runServerPromise, runServerPromiseResolve, runServerPromiseIsResolved, serverCompiler, serverPromise, run, _run;
     return _regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
@@ -1017,30 +1005,19 @@ function _start() {
             run = function _ref() {
               return _run.apply(this, arguments);
             };
-            clientWebpackHMREntry = 'webpack-hot-middleware/client?reload=true';
-            clientConfig.entry = _objectSpread({}, clientConfig.entry, {
-              main: [clientWebpackHMREntry, clientConfig.entry.main]
-            });
-            clientConfig.plugins.push(new webpack.HotModuleReplacementPlugin(), new webpack.NoEmitOnErrorsPlugin(), new webpack.NamedModulesPlugin());
-            bundler = webpack([clientConfig, serverConfig]);
-            _bundler$compilers = _slicedToArray(bundler.compilers, 2), clientCompiler = _bundler$compilers[0], serverCompiler = _bundler$compilers[1];
-            clientPromise = createCompilationPromise('client', clientCompiler);
-            serverPromise = createCompilationPromise('server', serverCompiler);
-            hotMiddleware = webpackHotMiddleware(clientCompiler);
-            devMiddleware = webpackDevMiddleware(clientCompiler, {
-              publicPath: clientConfig.output.publicPath,
-              stats: stats
-            });
+            devServer = express();
             proxyMiddleware = proxy({
               target: "http://localhost:".concat(PORT),
               ws: true
             });
-            fallbackMiddleware = historyApiFallback({
-              verbose: true
-            });
             runServerPromiseIsResolved = true;
-            devServer = express();
             devServer.use(function (req, res, next) {
+              if (!clientConfig) {
+                runServerPromise.then(function () {
+                  return proxyMiddleware(req, res, next);
+                }).catch(logger.error);
+                return;
+              }
               var publicPath = clientConfig.output.path;
               if (req.url && req.url.length > 1 && (isApiUrl(req.url) || fs__default.existsSync(publicPath + req.url))) {
                 logger.info('fallback', req.method, req.originalUrl);
@@ -1051,10 +1028,9 @@ function _start() {
               }
               next();
             });
-            devServer.use(fallbackMiddleware);
-            devServer.use(devMiddleware);
-            devServer.use(hotMiddleware);
             devServer.on('upgrade', proxyMiddleware.upgrade);
+            serverCompiler = webpack(serverConfig);
+            serverPromise = createCompilationPromise('server', serverCompiler);
             serverCompiler.plugin('compile', function () {
               if (!runServerPromiseIsResolved) return;
               runServerPromiseIsResolved = false;
@@ -1067,15 +1043,15 @@ function _start() {
                 run().catch(logger.error);
               }
             });
-            _context3.next = 24;
-            return clientPromise;
-          case 24:
-            _context3.next = 26;
+            _context3.next = 13;
+            return setupClientBundle(devServer);
+          case 13:
+            _context3.next = 15;
             return serverPromise;
-          case 26:
-            _context3.next = 28;
+          case 15:
+            _context3.next = 17;
             return launchServer(devServer);
-          case 28:
+          case 17:
           case "end":
             return _context3.stop();
         }

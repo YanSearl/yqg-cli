@@ -17,7 +17,12 @@ import clientConfig from '../webpack/webpack.client.config';
 import serverConfig from '../webpack/webpack.server.config';
 
 export default () => new Promise((resolve, reject) => {
-    webpack([clientConfig, serverConfig]).run((err, stats) => {
+    const webpackConfig = [serverConfig];
+    if (clientConfig) {
+        webpackConfig.push(clientConfig);
+    }
+
+    webpack(webpackConfig).run((err, stats) => {
         if (err) {
             return reject(err);
         }

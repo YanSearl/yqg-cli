@@ -6,7 +6,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('@babel/polyfill');
 var commander = _interopDefault(require('commander'));
 
-var version = "0.1.0-beta.4";
+var version = "0.1.0-beta.5";
 
 /**
  * @author panezhang

@@ -62,7 +62,9 @@ async function launchServer(server) {
     logger.timeEnd(TAG);
 }
 
-async function start() {
+function setupClientBundle(devServer) {
+    if (!clientConfig) return Promise.resolve();
+
     // Patch the client-side bundle configurations to enable Hot Module Replacement (HMR)
     const clientWebpackHMREntry = 'webpack-hot-middleware/client?reload=true';
     clientConfig.entry = {
@@ -79,28 +81,38 @@ async function start() {
         new webpack.NamedModulesPlugin()
     );
 
-    // setup compilers
-    const bundler = webpack([clientConfig, serverConfig]);
-    const [clientCompiler, serverCompiler] = bundler.compilers;
+    const clientCompiler = webpack(clientConfig);
     const clientPromise = createCompilationPromise('client', clientCompiler);
-    const serverPromise = createCompilationPromise('server', serverCompiler);
 
     // setup middleware
+    const fallbackMiddleware = historyApiFallback({verbose: true});
     const hotMiddleware = webpackHotMiddleware(clientCompiler);
     const devMiddleware = webpackDevMiddleware(clientCompiler, {
         publicPath: clientConfig.output.publicPath,
         stats
     });
 
-    const proxyMiddleware = proxy({target: `http://localhost:${PORT}`, ws: true});
-    const fallbackMiddleware = historyApiFallback({verbose: true});
+    devServer.use(fallbackMiddleware);
+    devServer.use(devMiddleware);
+    devServer.use(hotMiddleware);
 
-    // setup dev server
+    return clientPromise;
+}
+
+async function start() {
+    const devServer = express();
+    const proxyMiddleware = proxy({target: `http://localhost:${PORT}`, ws: true});
+
     let runServerPromise;
     let runServerPromiseResolve;
     let runServerPromiseIsResolved = true;
-    const devServer = express();
+
     devServer.use((req, res, next) => {
+        if (!clientConfig) {
+            runServerPromise.then(() => proxyMiddleware(req, res, next)).catch(logger.error);
+            return;
+        }
+
         const publicPath = clientConfig.output.path;
         if (req.url && req.url.length > 1 && (isApiUrl(req.url) || fs.existsSync(publicPath + req.url))) {
             logger.info('fallback', req.method, req.originalUrl);
@@ -111,12 +123,11 @@ async function start() {
         next();
     });
 
-    devServer.use(fallbackMiddleware);
-    devServer.use(devMiddleware);
-    devServer.use(hotMiddleware);
     devServer.on('upgrade', proxyMiddleware.upgrade);
 
     // watch for server update
+    const serverCompiler = webpack(serverConfig);
+    const serverPromise = createCompilationPromise('server', serverCompiler);
     serverCompiler.plugin('compile', () => {
         if (!runServerPromiseIsResolved) return;
         runServerPromiseIsResolved = false;
@@ -137,7 +148,7 @@ async function start() {
         }
     });
 
-    await clientPromise;
+    await setupClientBundle(devServer);
     await serverPromise;
     await launchServer(devServer);
 }
