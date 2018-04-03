@@ -6,13 +6,8 @@
  */
 
 module.exports = {
-    name: 'prod',
-
-    build: {
-        debug: false
-    },
-
     run: {
+        debug: false,
         webHost: 'https://<%= hyphenShortName %>.yangqianguan.com'
     }
 };

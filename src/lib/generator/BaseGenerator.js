@@ -7,6 +7,8 @@
 import moment from 'moment';
 
 import {signature} from '../constant';
+import logger from '../logger';
+
 import genFiles from './util/genFiles';
 import getAuthorInfo from './util/getAuthorInfo';
 import handleName from './util/handleName';
@@ -50,7 +52,11 @@ export default class BaseGenerator {
         const extraRenderData = await this.getExtraRenderData(commonRenderData);
         const renderData = {...commonRenderData, ...extraRenderData};
         const templateList = await this.getTemplateList(renderData);
+
+        logger.time('Generating');
         await Promise.all(templateList.map(({srcPath, destPath}) => genFiles({srcPath, destPath, renderData})));
+        logger.timeEnd('Generating');
+
         await this.onFinish(renderData);
     }
 

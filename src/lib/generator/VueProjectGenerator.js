@@ -4,6 +4,8 @@
  * @file VueProjectGenerator
  */
 
+import chalk from 'chalk';
+
 import prompt from '../prompt';
 import VueGenerator from './VueGenerator';
 
@@ -14,9 +16,7 @@ function handlePort(port) {
     }
 
     return {
-        port: `${digitalPort}`,
-        BrowserSyncPort: `${digitalPort + 1}`,
-        BrowserSyncUIPort: `${digitalPort + 2}`
+        port: `${digitalPort}`
     };
 }
 
@@ -35,6 +35,11 @@ export default class VueProjectGenerator extends VueGenerator {
 
         Object.assign(extraRenderData, handlePort(port));
         return extraRenderData;
+    }
+
+    async onFinish(renderData) {
+        const dest = `${this.dest}/${renderData.hyphenName}`;
+        console.log(`\n\n请到 ${chalk.yellow(dest)} 目录创建 node_modules 软链接，并添加到 git 中.\n\n`);
     }
 
 }
