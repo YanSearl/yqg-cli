@@ -6,9 +6,7 @@
 
 import webpack from 'webpack';
 import HtmlPlugin from 'html-webpack-plugin';
-import UglifyJsPlugin from 'uglifyjs-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-import OptimizeCSSAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import VersionHashPlugin from 'webpack-version-hash-plugin';
 
 import {resolvePwd} from '../../path';
@@ -125,19 +123,7 @@ export default {
                     priority: -10
                 }
             }
-        },
-
-        ...(DEBUG ? {} : {
-            minimizer: [
-                new UglifyJsPlugin({
-                    cache: DEBUG,
-                    parallel: true,
-                    sourceMap: SRC_MAP
-                }),
-
-                new OptimizeCSSAssetsPlugin({})
-            ]
-        })
+        }
     },
 
     plugins: [

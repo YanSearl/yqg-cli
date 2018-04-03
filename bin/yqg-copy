@@ -121,7 +121,7 @@ function _nonIterableSpread() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.0-beta.7";
+var version = "0.1.0-beta.8";
 
 var DEBUG = !!process.env.DEBUG;
 var NODE_ENV = process.env.NODE_ENV;
@@ -536,7 +536,7 @@ var react = _objectSpread({
       loader: [MiniCssExtractPlugin.loader, 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
     }]))
   },
-  optimization: _objectSpread({
+  optimization: {
     runtimeChunk: {
       name: 'manifest'
     },
@@ -562,13 +562,7 @@ var react = _objectSpread({
         }
       }
     }
-  }, DEBUG$1 ? {} : {
-    minimizer: [new UglifyJsPlugin({
-      cache: DEBUG$1,
-      parallel: true,
-      sourceMap: SRC_MAP
-    }), new OptimizeCSSAssetsPlugin({})]
-  }),
+  },
   plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
     __BROWSER__: true
   })), new webpack.ProvidePlugin(_objectSpread({
