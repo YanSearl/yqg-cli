@@ -17,12 +17,12 @@ const STAGE_CONF = {
     },
 
     test: {
-        chidoriApiHost: 'https://chidori-api-feat.yangqianguan.com',
+        chidoriApiHost: 'https://chidori-api-test.yangqianguan.com',
         chidoriHost: 'https://chidori-admin-test.yangqianguan.com'
     },
 
     feat: {
-        chidoriApiHost: 'https://chidori-api-test.yangqianguan.com',
+        chidoriApiHost: 'https://chidori-api-feat.yangqianguan.com',
         chidoriHost: 'https://chidori-admin-feat.yangqianguan.com'
     },
 
