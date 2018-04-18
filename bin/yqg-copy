@@ -15,10 +15,12 @@ var path = require('path');
 var path__default = _interopDefault(path);
 var webpack = _interopDefault(require('webpack'));
 var HtmlPlugin = _interopDefault(require('html-webpack-plugin'));
-var UglifyJsPlugin = _interopDefault(require('uglifyjs-webpack-plugin'));
 var MiniCssExtractPlugin = _interopDefault(require('mini-css-extract-plugin'));
-var OptimizeCSSAssetsPlugin = _interopDefault(require('optimize-css-assets-webpack-plugin'));
 var VersionHashPlugin = _interopDefault(require('webpack-version-hash-plugin'));
+var Visualizer = _interopDefault(require('webpack-visualizer-plugin'));
+var merge = _interopDefault(require('webpack-merge'));
+var UglifyJsPlugin = _interopDefault(require('uglifyjs-webpack-plugin'));
+var OptimizeCSSAssetsPlugin = _interopDefault(require('optimize-css-assets-webpack-plugin'));
 var _regeneratorRuntime = _interopDefault(require('@babel/runtime/regenerator'));
 var fsExtra = require('fs-extra');
 var replace = _interopDefault(require('replace'));
@@ -415,100 +417,7 @@ var rules = [{
   loader: 'file-loader'
 }];
 
-var rules$1 = rules.filter(function (rule) {
-  return rule.loader !== 'babel-loader';
-});
-rules$1.push.apply(rules$1, [{
-  test: /\.jsx?$/,
-  use: [{
-    loader: 'ng-annotate-loader',
-    options: {
-      add: true,
-      map: false
-    }
-  }, {
-    loader: 'babel-loader'
-  }],
-  exclude: /node_modules/
-}].concat(_toConsumableArray(DEBUG$1 ? [{
-  test: /\.css$/,
-  use: ['style-loader', 'css-loader']
-}, {
-  test: /\.scss$/,
-  use: ['style-loader', 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
-}] : [{
-  test: /\.css$/,
-  loader: [MiniCssExtractPlugin.loader, 'css-loader']
-}, {
-  test: /\.scss$/,
-  loader: [MiniCssExtractPlugin.loader, 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
-}])));
-var angular = _objectSpread({
-  target: 'web',
-  mode: MODE,
-  entry: {
-    main: WEBPACK_CLIENT_ENTRY,
-    polyfill: ['es5-shim', 'es5-shim/es5-sham', 'json3', 'babel-polyfill']
-  },
-  output: {
-    publicPath: '/',
-    path: resolvePwd('./build/public'),
-    filename: "[name].[".concat(HASH, "].js"),
-    globalObject: 'this'
-  },
-  devtool: SRC_MAP ? 'cheap-module-eval-source-map' : false,
-  cache: DEBUG$1,
-  module: {
-    rules: rules$1
-  },
-  resolve: {
-    alias: _objectSpread({}, WEBPACK_ALIAS)
-  },
-  optimization: _objectSpread({
-    runtimeChunk: {
-      name: 'manifest'
-    },
-    splitChunks: {
-      maxAsyncRequests: 10,
-      maxInitialRequests: 10,
-      cacheGroups: _objectSpread({
-        polyfill: {
-          chunks: 'all',
-          test: 'polyfill',
-          name: 'polyfill',
-          priority: -5
-        },
-        angular: {
-          chunks: 'all',
-          test: /[\\/]node_modules[\\/](angular)/,
-          priority: -5
-        },
-        vendor: {
-          chunks: 'all',
-          test: /[\\/]node_modules[\\/]/,
-          priority: -10
-        }
-      }, WEBPACK_CACHE_GROUPS)
-    }
-  }, DEBUG$1 ? {} : {
-    minimizer: [new UglifyJsPlugin({
-      cache: DEBUG$1,
-      parallel: true,
-      sourceMap: SRC_MAP
-    }), new OptimizeCSSAssetsPlugin({})]
-  }),
-  plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
-    __BROWSER__: true
-  })), new webpack.ProvidePlugin(_objectSpread({
-    '$': 'jquery',
-    'jQuery': 'jquery',
-    'window.jQuery': 'jquery'
-  }, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new MiniCssExtractPlugin({
-    filename: "[name].[".concat(CSS_HASH, "].css")
-  })] : []))
-}, WEBPACK_CLIENT_CONF);
-
-var react = _objectSpread({
+var baseConf = {
   target: 'web',
   mode: MODE,
   entry: {
@@ -538,23 +447,21 @@ var react = _objectSpread({
       loader: [MiniCssExtractPlugin.loader, 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
     }]))
   },
+  resolve: {
+    alias: WEBPACK_ALIAS
+  },
   optimization: {
     runtimeChunk: {
       name: 'manifest'
     },
     splitChunks: {
-      maxAsyncRequests: 10,
-      maxInitialRequests: 10,
+      maxAsyncRequests: 12,
+      maxInitialRequests: 12,
       cacheGroups: _objectSpread({
         polyfill: {
           chunks: 'all',
           test: 'polyfill',
           name: 'polyfill',
-          priority: -5
-        },
-        react: {
-          chunks: 'all',
-          test: /[\\/]node_modules[\\/](react|redux)/,
           priority: -5
         },
         vendor: {
@@ -567,78 +474,44 @@ var react = _objectSpread({
   },
   plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
     __BROWSER__: true
-  })), new webpack.ProvidePlugin(_objectSpread({
-    React: 'react'
-  }, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new MiniCssExtractPlugin({
+  })), new webpack.ProvidePlugin(WEBPACK_PROVIDES), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new MiniCssExtractPlugin({
     filename: "[name].[".concat(CSS_HASH, "].css")
-  })] : []))
-}, WEBPACK_CLIENT_CONF);
+  })] : [new Visualizer({
+    filename: './webpack-stat.html'
+  })]))
+};
 
-var vue = _objectSpread({
-  target: 'web',
-  mode: MODE,
-  entry: {
-    main: WEBPACK_CLIENT_ENTRY,
-    polyfill: ['es5-shim', 'es5-shim/es5-sham', 'json3', 'babel-polyfill']
-  },
-  output: {
-    publicPath: '/',
-    path: resolvePwd('./build/public/'),
-    filename: "[name].[".concat(HASH, "].js"),
-    globalObject: 'this'
-  },
-  devtool: SRC_MAP ? 'cheap-module-eval-source-map' : false,
-  cache: DEBUG$1,
-  module: {
-    rules: _toConsumableArray(rules).concat([{
-      test: /\.vue$/,
-      loader: 'vue-loader',
-      exclude: /node_modules/
-    }], _toConsumableArray(DEBUG$1 ? [{
-      test: /\.css$/,
-      use: ['style-loader', 'css-loader']
-    }, {
-      test: /\.scss$/,
-      use: ['style-loader', 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
-    }] : [{
-      test: /\.css$/,
-      loader: [MiniCssExtractPlugin.loader, 'css-loader']
-    }, {
-      test: /\.scss$/,
-      loader: [MiniCssExtractPlugin.loader, 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
-    }]))
-  },
-  resolve: {
-    alias: {
-      vue$: 'vue/dist/vue.common.js'
-    },
-    extensions: ['.js', '.vue', '.json']
-  },
+var rules$1 = baseConf.module.rules.filter(function (rule) {
+  return rule.loader !== 'babel-loader';
+});
+rules$1.unshift({
+  test: /\.jsx?$/,
+  use: [{
+    loader: 'ng-annotate-loader',
+    options: {
+      add: true,
+      map: false
+    }
+  }, {
+    loader: 'babel-loader'
+  }],
+  exclude: /node_modules/
+});
+var angularBaseConf = _objectSpread({}, baseConf, {
+  module: _objectSpread({}, baseConf.module, {
+    rules: rules$1
+  })
+});
+var angularConf = {
   optimization: _objectSpread({
-    runtimeChunk: {
-      name: 'manifest'
-    },
     splitChunks: {
-      maxAsyncRequests: 10,
-      maxInitialRequests: 10,
-      cacheGroups: _objectSpread({
-        polyfill: {
+      cacheGroups: {
+        angular: {
           chunks: 'all',
-          test: 'polyfill',
-          name: 'polyfill',
+          test: /[\\/]node_modules[\\/](angular)/,
           priority: -5
-        },
-        vue: {
-          chunks: 'all',
-          test: /[\\/]node_modules[\\/](vue)/,
-          priority: -5
-        },
-        vendor: {
-          chunks: 'all',
-          test: /[\\/]node_modules[\\/]/,
-          priority: -10
         }
-      }, WEBPACK_CACHE_GROUPS)
+      }
     }
   }, DEBUG$1 ? {} : {
     minimizer: [new UglifyJsPlugin({
@@ -647,12 +520,65 @@ var vue = _objectSpread({
       sourceMap: SRC_MAP
     }), new OptimizeCSSAssetsPlugin({})]
   }),
-  plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
-    __BROWSER__: true
-  })), new webpack.ProvidePlugin(_objectSpread({}, WEBPACK_PROVIDES)), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new MiniCssExtractPlugin({
-    filename: "[name].[".concat(CSS_HASH, "].css")
-  })] : []))
-}, WEBPACK_CLIENT_CONF);
+  plugins: [new webpack.ProvidePlugin({
+    '$': 'jquery',
+    'jQuery': 'jquery',
+    'window.jQuery': 'jquery'
+  })]
+};
+var angular = merge(angularBaseConf, angularConf, WEBPACK_CLIENT_CONF);
+
+var reactConf = {
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        react: {
+          chunks: 'all',
+          test: /[\\/]node_modules[\\/](react|redux)/,
+          priority: -5
+        }
+      }
+    }
+  },
+  plugins: [new webpack.ProvidePlugin({
+    React: 'react'
+  })]
+};
+var react = merge(baseConf, reactConf, WEBPACK_CLIENT_CONF);
+
+var vueConf = {
+  module: {
+    rules: [{
+      test: /\.vue$/,
+      loader: 'vue-loader',
+      exclude: /node_modules/
+    }]
+  },
+  resolve: {
+    alias: {
+      vue$: 'vue/dist/vue.common.js'
+    },
+    extensions: ['.js', '.vue', '.json']
+  },
+  optimization: _objectSpread({
+    splitChunks: {
+      cacheGroups: {
+        vue: {
+          chunks: 'all',
+          test: /[\\/]node_modules[\\/](vue)/,
+          priority: -5
+        }
+      }
+    }
+  }, DEBUG$1 ? {} : {
+    minimizer: [new UglifyJsPlugin({
+      cache: DEBUG$1,
+      parallel: true,
+      sourceMap: SRC_MAP
+    }), new OptimizeCSSAssetsPlugin({})]
+  })
+};
+var vue = merge(baseConf, vueConf, WEBPACK_CLIENT_CONF);
 
 var FRAMEWORK_MAP = {
   angular: angular,
