@@ -18,12 +18,14 @@ import {
     MODE,
     HASH,
     CSS_HASH,
+    SRC_MAP,
 
     WEBPACK_CLIENT_ENTRY,
     WEBPACK_GLOBALS,
     WEBPACK_PROVIDES,
     WEBPACK_HTML_PLUGIN_CONF,
-    WEBPACK_CLIENT_CONF, SRC_MAP
+    WEBPACK_CACHE_GROUPS,
+    WEBPACK_CLIENT_CONF
 } from '../build-conf';
 
 import globals from './globals';
@@ -138,7 +140,9 @@ export default {
                     chunks: 'all',
                     test: /[\\/]node_modules[\\/]/,
                     priority: -10
-                }
+                },
+
+                ...WEBPACK_CACHE_GROUPS
             }
         },
 

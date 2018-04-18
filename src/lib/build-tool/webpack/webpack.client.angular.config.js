@@ -29,6 +29,7 @@ import {
     WEBPACK_ALIAS,
     WEBPACK_PROVIDES,
     WEBPACK_HTML_PLUGIN_CONF,
+    WEBPACK_CACHE_GROUPS,
     WEBPACK_CLIENT_CONF
 } from '../build-conf';
 
@@ -150,7 +151,9 @@ export default {
                     chunks: 'all',
                     test: /[\\/]node_modules[\\/]/,
                     priority: -10
-                }
+                },
+
+                ...WEBPACK_CACHE_GROUPS
             }
         },
 

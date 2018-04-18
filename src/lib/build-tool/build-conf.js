@@ -83,6 +83,7 @@ export const { // default value for buildConf
     alias: WEBPACK_ALIAS = {},
     provide: WEBPACK_PROVIDES = {},
     htmlPlugin: WEBPACK_HTML_PLUGIN_CONF = {},
+    cacheGroups: WEBPACK_CACHE_GROUPS = {},
     clientEntry: WEBPACK_CLIENT_ENTRY = './common/app/index.js',
     client: WEBPACK_CLIENT_CONF = {},
 

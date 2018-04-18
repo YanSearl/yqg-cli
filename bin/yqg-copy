@@ -121,7 +121,7 @@ function _nonIterableSpread() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.0";
+var version = "0.1.1";
 
 var DEBUG = !!process.env.DEBUG;
 var NODE_ENV = process.env.NODE_ENV;
@@ -343,6 +343,8 @@ var _buildConf = buildConf,
     WEBPACK_PROVIDES = _buildConf$provide === void 0 ? {} : _buildConf$provide,
     _buildConf$htmlPlugin = _buildConf.htmlPlugin,
     WEBPACK_HTML_PLUGIN_CONF = _buildConf$htmlPlugin === void 0 ? {} : _buildConf$htmlPlugin,
+    _buildConf$cacheGroup = _buildConf.cacheGroups,
+    WEBPACK_CACHE_GROUPS = _buildConf$cacheGroup === void 0 ? {} : _buildConf$cacheGroup,
     _buildConf$clientEntr = _buildConf.clientEntry,
     WEBPACK_CLIENT_ENTRY = _buildConf$clientEntr === void 0 ? './common/app/index.js' : _buildConf$clientEntr,
     _buildConf$client = _buildConf.client,
@@ -469,7 +471,7 @@ var angular = _objectSpread({
     splitChunks: {
       maxAsyncRequests: 10,
       maxInitialRequests: 10,
-      cacheGroups: {
+      cacheGroups: _objectSpread({
         polyfill: {
           chunks: 'all',
           test: 'polyfill',
@@ -486,7 +488,7 @@ var angular = _objectSpread({
           test: /[\\/]node_modules[\\/]/,
           priority: -10
         }
-      }
+      }, WEBPACK_CACHE_GROUPS)
     }
   }, DEBUG$1 ? {} : {
     minimizer: [new UglifyJsPlugin({
@@ -543,7 +545,7 @@ var react = _objectSpread({
     splitChunks: {
       maxAsyncRequests: 10,
       maxInitialRequests: 10,
-      cacheGroups: {
+      cacheGroups: _objectSpread({
         polyfill: {
           chunks: 'all',
           test: 'polyfill',
@@ -560,7 +562,7 @@ var react = _objectSpread({
           test: /[\\/]node_modules[\\/]/,
           priority: -10
         }
-      }
+      }, WEBPACK_CACHE_GROUPS)
     }
   },
   plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
@@ -619,7 +621,7 @@ var vue = _objectSpread({
     splitChunks: {
       maxAsyncRequests: 10,
       maxInitialRequests: 10,
-      cacheGroups: {
+      cacheGroups: _objectSpread({
         polyfill: {
           chunks: 'all',
           test: 'polyfill',
@@ -636,7 +638,7 @@ var vue = _objectSpread({
           test: /[\\/]node_modules[\\/]/,
           priority: -10
         }
-      }
+      }, WEBPACK_CACHE_GROUPS)
     }
   }, DEBUG$1 ? {} : {
     minimizer: [new UglifyJsPlugin({
