@@ -14,6 +14,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import VersionHashPlugin from 'webpack-version-hash-plugin';
 import Visualizer from 'webpack-visualizer-plugin';
 
+import {STAT} from '../../constant';
 import {resolvePwd} from '../../path';
 
 import {
@@ -149,10 +150,11 @@ export default {
             new webpack.optimize.AggressiveMergingPlugin(),
             new webpack.optimize.OccurrenceOrderPlugin(),
             new MiniCssExtractPlugin({filename: `[name].[${CSS_HASH}].css`})
-        ] : [
+        ] : []),
+        ...(STAT ? [
             new Visualizer({
                 filename: './webpack-stat.html'
             })
-        ])
+        ] : [])
     ]
 };

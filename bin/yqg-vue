@@ -3,6 +3,7 @@
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
+var minimist = _interopDefault(require('minimist'));
 var prefix = _interopDefault(require('global-prefix'));
 var chalk = _interopDefault(require('chalk'));
 var fs = require('fs');
@@ -192,7 +193,11 @@ function _nonIterableSpread() {
 var name = "@yqg/cli";
 var version = "0.1.1";
 
-var DEBUG = !!process.env.DEBUG;
+var argv = minimist(process.argv);
+var _argv$debug = argv.debug,
+    DEBUG = _argv$debug === void 0 ? false : _argv$debug,
+    _argv$stat = argv.stat,
+    STAT = _argv$stat === void 0 ? false : _argv$stat;
 var NODE_ENV = process.env.NODE_ENV;
 var VERSION_CHECK_DISABLE = !!process.env.NODE_ENV;
 var VERSION_CHECK_PERIOD = 86400e3;
@@ -278,7 +283,7 @@ var logger = {
 var LOG_TAG = 'check-version';
 var checkVersion = (function () {
   return new Promise(function (resolve, reject) {
-    logger.info("NODE_ENV=".concat(NODE_ENV, " prefix=").concat(NPM_PREFIX, " isGlobal=").concat(IS_GLOBAL_INSTALL));
+    logger.info("DEBUG=".concat(DEBUG, " STAT=").concat(STAT, " NODE_ENV=").concat(NODE_ENV, " prefix=").concat(NPM_PREFIX, " isGlobal=").concat(IS_GLOBAL_INSTALL));
     if (VERSION_CHECK_DISABLE || !IS_GLOBAL_INSTALL) {
       resolve();
       return;

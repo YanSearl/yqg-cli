@@ -11,14 +11,14 @@ import getPackageInfo from 'package-json';
 import semver from 'semver';
 
 import {name, version} from '../../package.json';
-import {NODE_ENV, VERSION_CHECK_DISABLE, VERSION_CHECK_PERIOD, VERSION_FILE_PATH} from './constant';
+import {DEBUG, STAT, NODE_ENV, VERSION_CHECK_DISABLE, VERSION_CHECK_PERIOD, VERSION_FILE_PATH} from './constant';
 import {NPM_PREFIX, IS_GLOBAL_INSTALL} from './util';
 import logger from './logger';
 
 const LOG_TAG = 'check-version';
 
 export default () => new Promise((resolve, reject) => {
-    logger.info(`NODE_ENV=${NODE_ENV} prefix=${NPM_PREFIX} isGlobal=${IS_GLOBAL_INSTALL}`);
+    logger.info(`DEBUG=${DEBUG} STAT=${STAT} NODE_ENV=${NODE_ENV} prefix=${NPM_PREFIX} isGlobal=${IS_GLOBAL_INSTALL}`);
     if (VERSION_CHECK_DISABLE || !IS_GLOBAL_INSTALL) { // yqg local install
         resolve();
         return;

@@ -4,9 +4,16 @@
  * @file constant
  */
 
+import minimist from 'minimist';
+
 import {version} from '../../package.json';
 
-export const DEBUG = !!process.env.DEBUG;
+const argv = minimist(process.argv); // 解析一些通用的参数
+
+export const {
+    debug: DEBUG = false,
+    stat: STAT = false
+} = argv;
 
 export const NODE_ENV = process.env.NODE_ENV;
 export const VERSION_CHECK_DISABLE = !!process.env.NODE_ENV;
