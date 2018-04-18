@@ -13,6 +13,7 @@ Then, you can type the command to use yqg-cli,
 yqg vue
 yqg angular
 yqg shell
+yqg vue --debug # debug 模式
 ```
 
 And that's all.
@@ -177,6 +178,8 @@ Modify the scripts field in package.json:
 }
 ```
 
+**Note:** using `yqg build --stat` can generate a webpack stat html page to help analyzing bundles.
+
 ### Step 3: send ready signal in server.js
 
 ```javascript
@@ -214,6 +217,7 @@ Assum `DEV` is true when NODE_ENV is not one of test/feat/prod.
 | build.alias           | see blow                                   | used by webpack.resolve               |
 | build.provide         | see blow                                   | used by webpack.ProvidePlugin         |
 | build.htmlPlugin      | {}                                         | options for html-webpack-plugin       |
+| build.cacheGroups | {} | extra cacheGroups |
 | build.clientEntry     | './common/app/index.js'                    |                                       |
 | build.client          | {}                                         | 用于覆盖 client.config.js，不推荐使用 |
 | build.clean           | see blow                                   | yqg clean config                      |
