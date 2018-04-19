@@ -87,7 +87,7 @@ export default {
                         use: [
                             'style-loader',
                             'css-loader',
-                            'less-loader'
+                            {loader: 'less-loader', options: {javascriptEnabled: true}}
                         ]
                     }]
                 : [
@@ -112,7 +112,7 @@ export default {
                         use: [
                             MiniCssExtractPlugin.loader,
                             'css-loader',
-                            'less-loader'
+                            {loader: 'less-loader', options: {javascriptEnabled: true}}
                         ]
                     }
                 ])
