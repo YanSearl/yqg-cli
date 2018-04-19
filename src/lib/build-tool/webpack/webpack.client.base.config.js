@@ -81,6 +81,14 @@ export default {
                             'resolve-url-loader',
                             'sass-loader?sourceMap'
                         ]
+                    },
+                    {
+                        test: /\.less$/,
+                        use: [
+                            'style-loader',
+                            'css-loader',
+                            'less-loader'
+                        ]
                     }]
                 : [
                     {
@@ -97,6 +105,14 @@ export default {
                             'css-loader',
                             'resolve-url-loader',
                             'sass-loader?sourceMap'
+                        ]
+                    },
+                    {
+                        test: /\.less$/,
+                        use: [
+                            MiniCssExtractPlugin.loader,
+                            'css-loader',
+                            'less-loader'
                         ]
                     }
                 ])
