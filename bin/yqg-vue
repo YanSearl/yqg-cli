@@ -21,6 +21,28 @@ var strman = require('strman');
 var moment = _interopDefault(require('moment'));
 require('@babel/polyfill');
 
+var name = "@yqg/cli";
+var version = "0.1.4";
+
+var argv = minimist(process.argv);
+var _argv$debug = argv.debug,
+    DEBUG = _argv$debug === void 0 ? false : _argv$debug,
+    _argv$stat = argv.stat,
+    STAT = _argv$stat === void 0 ? false : _argv$stat;
+var NODE_ENV = process.env.NODE_ENV;
+var VERSION_CHECK_DISABLE = !!process.env.NODE_ENV;
+var VERSION_CHECK_PERIOD = 86400e3;
+var VERSION_FILE_PATH = '~/.yqg-cli.log';
+var signature = "yqg-cli@".concat(version);
+
+var NPM_PREFIX = prefix;
+var isGlobalInstall = function isGlobalInstall() {
+  return process.argv.some(function (arg, index) {
+    return !index && arg.startsWith('yqg') || arg.startsWith(NPM_PREFIX) && !arg.endsWith('node');
+  });
+};
+var IS_GLOBAL_INSTALL = isGlobalInstall();
+
 function _asyncToGenerator(fn) {
   return function () {
     var self = this,
@@ -113,45 +135,31 @@ function _objectSpread(target) {
   return target;
 }
 
-function _get(object, property, receiver) {
-  if (object === null) object = Function.prototype;
-  var desc = Object.getOwnPropertyDescriptor(object, property);
-
-  if (desc === undefined) {
-    var parent = Object.getPrototypeOf(object);
-
-    if (parent === null) {
-      return undefined;
-    } else {
-      return _get(parent, property, receiver);
-    }
-  } else if ("value" in desc) {
-    return desc.value;
-  } else {
-    var getter = desc.get;
-
-    if (getter === undefined) {
-      return undefined;
-    }
-
-    return getter.call(receiver);
-  }
-}
-
 function _inherits(subClass, superClass) {
   if (typeof superClass !== "function" && superClass !== null) {
     throw new TypeError("Super expression must either be null or a function");
   }
 
-  subClass.prototype = Object.create(superClass && superClass.prototype, {
-    constructor: {
-      value: subClass,
-      enumerable: false,
-      writable: true,
-      configurable: true
-    }
-  });
-  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  _setPrototypeOf(subClass.prototype, superClass && superClass.prototype);
+
+  if (superClass) _setPrototypeOf(subClass, superClass);
+}
+
+function _getPrototypeOf(o) {
+  _getPrototypeOf = Object.getPrototypeOf || function _getPrototypeOf(o) {
+    return o.__proto__;
+  };
+
+  return _getPrototypeOf(o);
+}
+
+function _setPrototypeOf(o, p) {
+  _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
 }
 
 function _assertThisInitialized(self) {
@@ -168,6 +176,36 @@ function _possibleConstructorReturn(self, call) {
   }
 
   return _assertThisInitialized(self);
+}
+
+function _superPropBase(object, property) {
+  while (!Object.prototype.hasOwnProperty.call(object, property)) {
+    object = _getPrototypeOf(object);
+    if (object === null) break;
+  }
+
+  return object;
+}
+
+function _get(target, property, receiver) {
+  if (typeof Reflect !== "undefined" && Reflect.get) {
+    _get = Reflect.get;
+  } else {
+    _get = function _get(target, property, receiver) {
+      var base = _superPropBase(target, property);
+
+      if (!base) return;
+      var desc = Object.getOwnPropertyDescriptor(base, property);
+
+      if (desc.get) {
+        return desc.get.call(receiver);
+      }
+
+      return desc.value;
+    };
+  }
+
+  return _get(target, property, receiver || target);
 }
 
 function _toConsumableArray(arr) {
@@ -189,28 +227,6 @@ function _iterableToArray(iter) {
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
 }
-
-var name = "@yqg/cli";
-var version = "0.1.4";
-
-var argv = minimist(process.argv);
-var _argv$debug = argv.debug,
-    DEBUG = _argv$debug === void 0 ? false : _argv$debug,
-    _argv$stat = argv.stat,
-    STAT = _argv$stat === void 0 ? false : _argv$stat;
-var NODE_ENV = process.env.NODE_ENV;
-var VERSION_CHECK_DISABLE = !!process.env.NODE_ENV;
-var VERSION_CHECK_PERIOD = 86400e3;
-var VERSION_FILE_PATH = '~/.yqg-cli.log';
-var signature = "yqg-cli@".concat(version);
-
-var NPM_PREFIX = prefix;
-var isGlobalInstall = function isGlobalInstall() {
-  return process.argv.some(function (arg, index) {
-    return !index && arg.startsWith('yqg') || arg.startsWith(NPM_PREFIX) && !arg.endsWith('node');
-  });
-};
-var IS_GLOBAL_INSTALL = isGlobalInstall();
 
 var colored = function colored(chalkMethod) {
   for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -373,14 +389,14 @@ var VUE_TEMPLATE_TYPE = {
   PROJECT: 'project',
   PROJECT_USER: 'project-user'
 };
-var FRAMEWORK_TYPE = {
+var FRAMEWORK_TYPE$1 = {
   ANGULAR: 'angular',
   VUE: 'vue'
 };
-var FRAMEWORK_CONF = (_FRAMEWORK_CONF = {}, _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.ANGULAR, {
+var FRAMEWORK_CONF = (_FRAMEWORK_CONF = {}, _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE$1.ANGULAR, {
   TEMPLATE_TYPE: ANGULAR_TEMPLATE_TYPE,
   TEMPLATE_LIST: Object.values(ANGULAR_TEMPLATE_TYPE)
-}), _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.VUE, {
+}), _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE$1.VUE, {
   TEMPLATE_TYPE: VUE_TEMPLATE_TYPE,
   TEMPLATE_LIST: Object.values(VUE_TEMPLATE_TYPE)
 }), _FRAMEWORK_CONF);
@@ -641,10 +657,9 @@ function () {
 var SUB_PROJECT_REG = /yqd_web_admin\/projects\/([A-Za-z0-9-]+)\/src/;
 var AngularGenerator =
 function (_BaseGenerator) {
-  _inherits(AngularGenerator, _BaseGenerator);
   function AngularGenerator() {
     _classCallCheck(this, AngularGenerator);
-    return _possibleConstructorReturn(this, (AngularGenerator.__proto__ || Object.getPrototypeOf(AngularGenerator)).apply(this, arguments));
+    return _possibleConstructorReturn(this, _getPrototypeOf(AngularGenerator).apply(this, arguments));
   }
   _createClass(AngularGenerator, [{
     key: "getExtraRenderData",
@@ -723,15 +738,15 @@ function (_BaseGenerator) {
       };
     }()
   }]);
+  _inherits(AngularGenerator, _BaseGenerator);
   return AngularGenerator;
 }(BaseGenerator);
 
 var AngularComponentGenerator =
 function (_AngularGenerator) {
-  _inherits(AngularComponentGenerator, _AngularGenerator);
   function AngularComponentGenerator() {
     _classCallCheck(this, AngularComponentGenerator);
-    return _possibleConstructorReturn(this, (AngularComponentGenerator.__proto__ || Object.getPrototypeOf(AngularComponentGenerator)).apply(this, arguments));
+    return _possibleConstructorReturn(this, _getPrototypeOf(AngularComponentGenerator).apply(this, arguments));
   }
   _createClass(AngularComponentGenerator, [{
     key: "getExtraRenderData",
@@ -744,7 +759,7 @@ function (_AngularGenerator) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return _get(AngularComponentGenerator.prototype.__proto__ || Object.getPrototypeOf(AngularComponentGenerator.prototype), "getExtraRenderData", this).call(this, commonRenderData);
+                return _get(_getPrototypeOf(AngularComponentGenerator.prototype), "getExtraRenderData", this).call(this, commonRenderData);
               case 2:
                 extraRenderData = _context.sent;
                 _context.next = 5;
@@ -786,7 +801,7 @@ function (_AngularGenerator) {
             switch (_context2.prev = _context2.next) {
               case 0:
                 _context2.next = 2;
-                return _get(AngularComponentGenerator.prototype.__proto__ || Object.getPrototypeOf(AngularComponentGenerator.prototype), "getTemplateList", this).call(this, renderData);
+                return _get(_getPrototypeOf(AngularComponentGenerator.prototype), "getTemplateList", this).call(this, renderData);
               case 2:
                 templateList = _context2.sent;
                 if (renderData.hasResource) {
@@ -811,15 +826,15 @@ function (_AngularGenerator) {
       };
     }()
   }]);
+  _inherits(AngularComponentGenerator, _AngularGenerator);
   return AngularComponentGenerator;
 }(AngularGenerator);
 
 var VueGenerator =
 function (_BaseGenerator) {
-  _inherits(VueGenerator, _BaseGenerator);
   function VueGenerator() {
     _classCallCheck(this, VueGenerator);
-    return _possibleConstructorReturn(this, (VueGenerator.__proto__ || Object.getPrototypeOf(VueGenerator)).apply(this, arguments));
+    return _possibleConstructorReturn(this, _getPrototypeOf(VueGenerator).apply(this, arguments));
   }
   _createClass(VueGenerator, [{
     key: "getTemplateList",
@@ -852,6 +867,7 @@ function (_BaseGenerator) {
       };
     }()
   }]);
+  _inherits(VueGenerator, _BaseGenerator);
   return VueGenerator;
 }(BaseGenerator);
 
@@ -866,10 +882,9 @@ function handlePort(port) {
 }
 var VueProjectGenerator =
 function (_VueGenerator) {
-  _inherits(VueProjectGenerator, _VueGenerator);
   function VueProjectGenerator() {
     _classCallCheck(this, VueProjectGenerator);
-    return _possibleConstructorReturn(this, (VueProjectGenerator.__proto__ || Object.getPrototypeOf(VueProjectGenerator)).apply(this, arguments));
+    return _possibleConstructorReturn(this, _getPrototypeOf(VueProjectGenerator).apply(this, arguments));
   }
   _createClass(VueProjectGenerator, [{
     key: "getExtraRenderData",
@@ -882,7 +897,7 @@ function (_VueGenerator) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return _get(VueProjectGenerator.prototype.__proto__ || Object.getPrototypeOf(VueProjectGenerator.prototype), "getExtraRenderData", this).call(this, commonRenderData);
+                return _get(_getPrototypeOf(VueProjectGenerator.prototype), "getExtraRenderData", this).call(this, commonRenderData);
               case 2:
                 extraRenderData = _context.sent;
                 _context.next = 5;
@@ -934,15 +949,15 @@ function (_VueGenerator) {
       };
     }()
   }]);
+  _inherits(VueProjectGenerator, _VueGenerator);
   return VueProjectGenerator;
 }(VueGenerator);
 
 var VueProjectUserGenerator =
 function (_VueGenerator) {
-  _inherits(VueProjectUserGenerator, _VueGenerator);
   function VueProjectUserGenerator() {
     _classCallCheck(this, VueProjectUserGenerator);
-    return _possibleConstructorReturn(this, (VueProjectUserGenerator.__proto__ || Object.getPrototypeOf(VueProjectUserGenerator)).apply(this, arguments));
+    return _possibleConstructorReturn(this, _getPrototypeOf(VueProjectUserGenerator).apply(this, arguments));
   }
   _createClass(VueProjectUserGenerator, [{
     key: "getExtraRenderData",
@@ -955,7 +970,7 @@ function (_VueGenerator) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return _get(VueProjectUserGenerator.prototype.__proto__ || Object.getPrototypeOf(VueProjectUserGenerator.prototype), "getExtraRenderData", this).call(this, commonRenderData);
+                return _get(_getPrototypeOf(VueProjectUserGenerator.prototype), "getExtraRenderData", this).call(this, commonRenderData);
               case 2:
                 extraRenderData = _context.sent;
                 _context.next = 5;
@@ -1001,7 +1016,7 @@ function (_VueGenerator) {
                 console.log("\n- config/default.js\n  ".concat(defaultConfig));
                 console.log("\n- gulp.babel.js\n  addYqgVueSPA('".concat(hyphenName, "');"));
                 _context2.next = 7;
-                return _get(VueProjectUserGenerator.prototype.__proto__ || Object.getPrototypeOf(VueProjectUserGenerator.prototype), "onFinish", this).call(this, renderData);
+                return _get(_getPrototypeOf(VueProjectUserGenerator.prototype), "onFinish", this).call(this, renderData);
               case 7:
               case "end":
                 return _context2.stop();
@@ -1014,11 +1029,12 @@ function (_VueGenerator) {
       };
     }()
   }]);
+  _inherits(VueProjectUserGenerator, _VueGenerator);
   return VueProjectUserGenerator;
 }(VueGenerator);
 
 var _FRAMEWORK_TYPE$ANGUL, _FRAMEWORK_TYPE$VUE, _GENERATOR_CONF;
-var GENERATOR_CONF = (_GENERATOR_CONF = {}, _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE.ANGULAR, (_FRAMEWORK_TYPE$ANGUL = {}, _defineProperty(_FRAMEWORK_TYPE$ANGUL, ANGULAR_TEMPLATE_TYPE.COMPONENT, AngularComponentGenerator), _defineProperty(_FRAMEWORK_TYPE$ANGUL, "default", AngularGenerator), _FRAMEWORK_TYPE$ANGUL)), _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE.VUE, (_FRAMEWORK_TYPE$VUE = {}, _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT, VueProjectGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT_USER, VueProjectUserGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, "default", VueGenerator), _FRAMEWORK_TYPE$VUE)), _GENERATOR_CONF);
+var GENERATOR_CONF = (_GENERATOR_CONF = {}, _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE$1.ANGULAR, (_FRAMEWORK_TYPE$ANGUL = {}, _defineProperty(_FRAMEWORK_TYPE$ANGUL, ANGULAR_TEMPLATE_TYPE.COMPONENT, AngularComponentGenerator), _defineProperty(_FRAMEWORK_TYPE$ANGUL, "default", AngularGenerator), _FRAMEWORK_TYPE$ANGUL)), _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE$1.VUE, (_FRAMEWORK_TYPE$VUE = {}, _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT, VueProjectGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT_USER, VueProjectUserGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, "default", VueGenerator), _FRAMEWORK_TYPE$VUE)), _GENERATOR_CONF);
 var generator = (function () {
   var _ref2 = _asyncToGenerator(
   _regeneratorRuntime.mark(function _callee(_ref) {

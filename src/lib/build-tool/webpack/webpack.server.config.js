@@ -39,8 +39,8 @@ export default {
     },
 
     entry: WEBPACK_SERVER_ENTRY,
+
     output: {
-        publicPath: '/',
         path: resolvePwd('./build'),
         filename: 'server.js',
         libraryTarget: 'commonjs2'

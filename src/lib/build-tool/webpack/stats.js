@@ -7,7 +7,7 @@
 import {DEBUG, VERBOSE} from '../build-conf';
 
 export default {
-    colors: true,
+    colors: DEBUG,
     reasons: DEBUG,
     hash: VERBOSE,
     version: VERBOSE,

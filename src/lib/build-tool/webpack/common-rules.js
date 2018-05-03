@@ -11,6 +11,10 @@ export default [
         exclude: /node_modules/
     },
     {
+        test: /\.vue$/,
+        loader: 'vue-loader'
+    },
+    {
         test: /\.html$/,
         loader: 'html-loader'
     },

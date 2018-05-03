@@ -13,22 +13,10 @@ import {DEBUG, SRC_MAP, WEBPACK_CLIENT_CONF} from '../build-conf';
 import baseConf from './webpack.client.base.config';
 
 const vueConf = {
-    module: {
-        rules: [
-            {
-                test: /\.vue$/,
-                loader: 'vue-loader',
-                exclude: /node_modules/
-            }
-        ]
-    },
-
     resolve: {
         alias: {
             vue$: 'vue/dist/vue.common.js'
-        },
-
-        extensions: ['.js', '.vue', '.json']
+        }
     },
 
     optimization: {

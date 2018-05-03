@@ -1,5 +1,6 @@
 {
     "extends": "@yqg/eslint-config/base",
+    "parser": "babel-eslint",
     "rules": {
         "no-console": [1],
         "no-unused-expressions": [1]

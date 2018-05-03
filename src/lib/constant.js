@@ -21,3 +21,11 @@ export const VERSION_CHECK_PERIOD = 86400e3; // 1d
 export const VERSION_FILE_PATH = '~/.yqg-cli.log';
 
 export const signature = `yqg-cli@${version}`;
+
+export const FRAMEWORK_TYPE = {
+    ANGULAR: 'angular',
+    REACT: 'react',
+    VUE: 'vue',
+    VUE_SSR: 'vue-ssr',
+    NONE: 'none' // server only
+};

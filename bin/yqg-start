@@ -15,13 +15,17 @@ var config = _interopDefault(require('config'));
 var path = require('path');
 var path__default = _interopDefault(path);
 var webpack = _interopDefault(require('webpack'));
-var HtmlPlugin = _interopDefault(require('html-webpack-plugin'));
+var FriendlyErrorsPlugin = _interopDefault(require('friendly-errors-webpack-plugin'));
 var MiniCssExtractPlugin = _interopDefault(require('mini-css-extract-plugin'));
+var merge = _interopDefault(require('webpack-merge'));
+var HtmlPlugin = _interopDefault(require('html-webpack-plugin'));
 var VersionHashPlugin = _interopDefault(require('webpack-version-hash-plugin'));
 var Visualizer = _interopDefault(require('webpack-visualizer-plugin'));
-var merge = _interopDefault(require('webpack-merge'));
 var UglifyJsPlugin = _interopDefault(require('uglifyjs-webpack-plugin'));
 var OptimizeCSSAssetsPlugin = _interopDefault(require('optimize-css-assets-webpack-plugin'));
+var VueSSRClientPlugin = _interopDefault(require('vue-server-renderer/client-plugin'));
+var nodeExternals = _interopDefault(require('webpack-node-externals'));
+var VueSSRServerPlugin = _interopDefault(require('vue-server-renderer/server-plugin'));
 var _regeneratorRuntime = _interopDefault(require('@babel/runtime/regenerator'));
 var fsExtra = require('fs-extra');
 var replace = _interopDefault(require('replace'));
@@ -136,6 +140,13 @@ var VERSION_CHECK_DISABLE = !!process.env.NODE_ENV;
 var VERSION_CHECK_PERIOD = 86400e3;
 var VERSION_FILE_PATH = '~/.yqg-cli.log';
 var signature = "yqg-cli@".concat(version);
+var FRAMEWORK_TYPE = {
+  ANGULAR: 'angular',
+  REACT: 'react',
+  VUE: 'vue',
+  VUE_SSR: 'vue-ssr',
+  NONE: 'none'
+};
 
 var NPM_PREFIX = prefix;
 var isGlobalInstall = function isGlobalInstall() {
@@ -338,14 +349,20 @@ var _buildConf = buildConf,
     SRC_MAP = _buildConf$srcMap === void 0 ? DEV : _buildConf$srcMap,
     _buildConf$packageJso = _buildConf.packageJsonPath,
     PACKAGE_JSON_PATH = _buildConf$packageJso === void 0 ? 'package.json' : _buildConf$packageJso,
+    _buildConf$publicPath = _buildConf.publicPath,
+    PUBLIC_PATH = _buildConf$publicPath === void 0 ? '/' : _buildConf$publicPath,
+    _buildConf$alias = _buildConf.alias,
+    WEBPACK_ALIAS = _buildConf$alias === void 0 ? {} : _buildConf$alias,
     _buildConf$global = _buildConf.global,
     WEBPACK_GLOBALS = _buildConf$global === void 0 ? {} : _buildConf$global,
     _buildConf$serverEntr = _buildConf.serverEntry,
     WEBPACK_SERVER_ENTRY = _buildConf$serverEntr === void 0 ? './server.js' : _buildConf$serverEntr,
+    _buildConf$ssrServerE = _buildConf.ssrServerEntry,
+    WEBPACK_SSR_SERVER_ENTRY = _buildConf$ssrServerE === void 0 ? './server.js' : _buildConf$ssrServerE,
     _buildConf$server = _buildConf.server,
     WEBPACK_SERVER_CONF = _buildConf$server === void 0 ? {} : _buildConf$server,
-    _buildConf$alias = _buildConf.alias,
-    WEBPACK_ALIAS = _buildConf$alias === void 0 ? {} : _buildConf$alias,
+    _buildConf$ssrServer = _buildConf.ssrServer,
+    WEBPACK_SSR_SERVER_CONF = _buildConf$ssrServer === void 0 ? {} : _buildConf$ssrServer,
     _buildConf$provide = _buildConf.provide,
     WEBPACK_PROVIDES = _buildConf$provide === void 0 ? {} : _buildConf$provide,
     _buildConf$htmlPlugin = _buildConf.htmlPlugin,
@@ -369,9 +386,10 @@ var _runConf = runConf,
     WEB_HOST = _runConf$webHost === void 0 ? '' : _runConf$webHost,
     _runConf$port = _runConf.port,
     PORT = _runConf$port === void 0 ? 8080 : _runConf$port;
+logger.info("FRAMEWORK=".concat(FRAMEWORK, " MODE=").concat(MODE));
 
 var stats = {
-  colors: true,
+  colors: DEBUG$1,
   reasons: DEBUG$1,
   hash: VERBOSE,
   version: VERBOSE,
@@ -406,6 +424,9 @@ var rules = [{
   loader: 'babel-loader',
   exclude: /node_modules/
 }, {
+  test: /\.vue$/,
+  loader: 'vue-loader'
+}, {
   test: /\.html$/,
   loader: 'html-loader'
 }, {
@@ -423,19 +444,7 @@ var rules = [{
 }];
 
 var baseConf = {
-  target: 'web',
   mode: MODE,
-  entry: {
-    main: WEBPACK_CLIENT_ENTRY,
-    polyfill: ['es5-shim', 'es5-shim/es5-sham', 'json3', 'babel-polyfill']
-  },
-  output: {
-    publicPath: '/',
-    path: resolvePwd('./build/public/'),
-    filename: "[name].[".concat(HASH, "].js"),
-    globalObject: 'this'
-  },
-  devtool: SRC_MAP ? 'cheap-module-eval-source-map' : false,
   cache: DEBUG$1,
   module: {
     rules: _toConsumableArray(rules).concat(_toConsumableArray(DEBUG$1 ? [{
@@ -469,8 +478,27 @@ var baseConf = {
     }]))
   },
   resolve: {
-    alias: WEBPACK_ALIAS
+    alias: WEBPACK_ALIAS,
+    extensions: ['.js', '.vue', '.json']
   },
+  plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS))].concat(_toConsumableArray(DEBUG$1 ? [new FriendlyErrorsPlugin()] : [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new MiniCssExtractPlugin({
+    filename: "[name].[".concat(CSS_HASH, "].css")
+  })]))
+};
+
+var clientBaseConf = {
+  target: 'web',
+  entry: {
+    main: WEBPACK_CLIENT_ENTRY,
+    polyfill: ['es5-shim', 'es5-shim/es5-sham', 'json3', 'babel-polyfill']
+  },
+  output: {
+    publicPath: PUBLIC_PATH,
+    path: resolvePwd('./build/public/'),
+    filename: "[name].[".concat(HASH, "].js"),
+    globalObject: 'this'
+  },
+  devtool: SRC_MAP ? 'cheap-module-eval-source-map' : false,
   optimization: {
     runtimeChunk: {
       name: 'manifest'
@@ -493,16 +521,15 @@ var baseConf = {
       }, WEBPACK_CACHE_GROUPS)
     }
   },
-  plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
+  plugins: [new webpack.DefinePlugin({
     __BROWSER__: true
-  })), new webpack.ProvidePlugin(WEBPACK_PROVIDES), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(!DEBUG$1 ? [new webpack.optimize.AggressiveMergingPlugin(), new webpack.optimize.OccurrenceOrderPlugin(), new MiniCssExtractPlugin({
-    filename: "[name].[".concat(CSS_HASH, "].css")
-  })] : []), _toConsumableArray(STAT ? [new Visualizer({
+  }), new webpack.ProvidePlugin(WEBPACK_PROVIDES), new HtmlPlugin(WEBPACK_HTML_PLUGIN_CONF), new VersionHashPlugin()].concat(_toConsumableArray(STAT ? [new Visualizer({
     filename: './webpack-stat.html'
   })] : []))
 };
+var baseConf$1 = merge(baseConf, clientBaseConf);
 
-var rules$1 = baseConf.module.rules.filter(function (rule) {
+var rules$1 = baseConf$1.module.rules.filter(function (rule) {
   return rule.loader !== 'babel-loader';
 });
 rules$1.unshift({
@@ -518,8 +545,8 @@ rules$1.unshift({
   }],
   exclude: /node_modules/
 });
-var angularBaseConf = _objectSpread({}, baseConf, {
-  module: _objectSpread({}, baseConf.module, {
+var angularBaseConf = _objectSpread({}, baseConf$1, {
+  module: _objectSpread({}, baseConf$1.module, {
     rules: rules$1
   })
 });
@@ -565,21 +592,13 @@ var reactConf = {
     React: 'react'
   })]
 };
-var react = merge(baseConf, reactConf, WEBPACK_CLIENT_CONF);
+var react = merge(baseConf$1, reactConf, WEBPACK_CLIENT_CONF);
 
 var vueConf = {
-  module: {
-    rules: [{
-      test: /\.vue$/,
-      loader: 'vue-loader',
-      exclude: /node_modules/
-    }]
-  },
   resolve: {
     alias: {
       vue$: 'vue/dist/vue.common.js'
-    },
-    extensions: ['.js', '.vue', '.json']
+    }
   },
   optimization: _objectSpread({
     splitChunks: {
@@ -599,18 +618,11 @@ var vueConf = {
     }), new OptimizeCSSAssetsPlugin({})]
   })
 };
-var vue = merge(baseConf, vueConf, WEBPACK_CLIENT_CONF);
-
-var FRAMEWORK_MAP = {
-  angular: angular,
-  react: react,
-  vue: vue
-};
-var clientConfig = FRAMEWORK_MAP[FRAMEWORK];
+var vue = merge(baseConf$1, vueConf, WEBPACK_CLIENT_CONF);
 
 var packageJsonContent = fs__default.readFileSync(resolvePwd(PACKAGE_JSON_PATH)).toString();
 var Package = JSON.parse(packageJsonContent);
-var serverConfig = _objectSpread({
+var server = _objectSpread({
   target: 'node',
   mode: MODE,
   node: {
@@ -623,7 +635,6 @@ var serverConfig = _objectSpread({
   },
   entry: WEBPACK_SERVER_ENTRY,
   output: {
-    publicPath: '/',
     path: resolvePwd('./build'),
     filename: 'server.js',
     libraryTarget: 'commonjs2'
@@ -639,11 +650,77 @@ var serverConfig = _objectSpread({
   })), new webpack.optimize.OccurrenceOrderPlugin()]
 }, WEBPACK_SERVER_CONF);
 
+var clientConf = {
+  target: 'web',
+  entry: {
+    app: WEBPACK_CLIENT_ENTRY
+  },
+  output: {
+    path: resolvePwd('./build/public/static'),
+    publicPath: PUBLIC_PATH,
+    filename: "[name].[".concat(HASH, "].js")
+  },
+  plugins: [new webpack.DefinePlugin({
+    'process.env.VUE_ENV': '"client"'
+  }), new VueSSRClientPlugin()]
+};
+var entryClient = merge(baseConf, clientConf, WEBPACK_CLIENT_CONF);
+
+var serverConf = {
+  target: 'node',
+  devtool: '#source-map',
+  entry: WEBPACK_SERVER_ENTRY,
+  output: {
+    path: resolvePwd('./build'),
+    filename: 'entry-server.js',
+    libraryTarget: 'commonjs2'
+  },
+  externals: nodeExternals({
+    whitelist: /\.css$/
+  }),
+  plugins: [new webpack.DefinePlugin({
+    'process.env.VUE_ENV': '"server"'
+  }), new VueSSRServerPlugin()]
+};
+var entryServer = merge(baseConf, serverConf, WEBPACK_SERVER_CONF);
+
+var ssrServerConf = {
+  target: 'node',
+  node: {
+    console: false,
+    global: false,
+    process: false,
+    Buffer: false,
+    __filename: false,
+    __dirname: false
+  },
+  devtool: '#source-map',
+  entry: WEBPACK_SSR_SERVER_ENTRY,
+  output: {
+    path: resolvePwd('./build'),
+    filename: 'server.js',
+    libraryTarget: 'commonjs2'
+  },
+  externals: [/vue-ssr-server-bundle\.json$/, /vue-ssr-client-manifest\.json$/, nodeExternals({
+    whitelist: /(^@yqg\/cli\/dist)|(\.css$)/
+  })],
+  plugins: [new webpack.DefinePlugin({
+    'process.env.VUE_ENV': '"server"'
+  })]
+};
+var server$1 = merge(baseConf, ssrServerConf, WEBPACK_SSR_SERVER_CONF);
+
+var vueSSR = [entryClient, entryServer, server$1];
+
+var _FRAMEWORK_MAP;
+var FRAMEWORK_MAP = (_FRAMEWORK_MAP = {}, _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.ANGULAR, [angular, server]), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.REACT, [react, server]), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.VUE, [vue, server]), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.VUE_SSR, vueSSR), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.NONE, server), _FRAMEWORK_MAP);
+var webpackConfig = FRAMEWORK_MAP[FRAMEWORK];
+
 var bundle = (function () {
   return new Promise(function (resolve, reject) {
-    var webpackConfig = [serverConfig];
-    if (clientConfig) {
-      webpackConfig.push(clientConfig);
+    if (!webpackConfig) {
+      reject(new Error('No config found.'));
+      return;
     }
     webpack(webpackConfig).run(function (err, stats$$1) {
       if (err) {
@@ -663,7 +740,7 @@ var DEFAULT_OPTIONS = {
 var clean = (function () {
   var _ref = _asyncToGenerator(
   _regeneratorRuntime.mark(function _callee(opts) {
-    var _Object$assign, optsRemove, recreate, optsEnsure, removeTargets, ensureTargets, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _target2, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, _target3;
+    var _Object$assign, optsRemove, recreate, optsEnsure, removeTargets, ensureTargets, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, target, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, _target;
     return _regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -684,9 +761,9 @@ var clean = (function () {
               _context.next = 16;
               break;
             }
-            _target2 = _step.value;
+            target = _step.value;
             _context.next = 13;
-            return fsExtra.remove(_target2);
+            return fsExtra.remove(target);
           case 13:
             _iteratorNormalCompletion = true;
             _context.next = 9;
@@ -727,9 +804,9 @@ var clean = (function () {
               _context.next = 42;
               break;
             }
-            _target3 = _step2.value;
+            _target = _step2.value;
             _context.next = 39;
-            return fsExtra.ensureDir(_target3);
+            return fsExtra.ensureDir(_target);
           case 39:
             _iteratorNormalCompletion2 = true;
             _context.next = 35;
@@ -835,22 +912,22 @@ _regeneratorRuntime.mark(function _callee() {
   }, _callee, this);
 }));
 
-var server;
+var server$2;
 function killServer() {
-  if (server) {
-    server.kill('SIGTERM');
+  if (server$2) {
+    server$2.kill('SIGTERM');
   }
 }
 function runServer(serverPath) {
   return new Promise(function (resolve) {
     killServer();
-    server = cp.fork(serverPath, {
+    server$2 = cp.fork(serverPath, {
       env: Object.assign({
         NODE_ENV: 'development'
       }, process.env),
       silent: false
     });
-    server.on('message', function () {
+    server$2.on('message', function () {
       var result = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       return result.ready && resolve();
     });
@@ -858,6 +935,11 @@ function runServer(serverPath) {
 }
 process.on('exit', killServer);
 
+var _FRAMEWORK_MAP$1;
+var FRAMEWORK_MAP$1 = (_FRAMEWORK_MAP$1 = {}, _defineProperty(_FRAMEWORK_MAP$1, FRAMEWORK_TYPE.ANGULAR, angular), _defineProperty(_FRAMEWORK_MAP$1, FRAMEWORK_TYPE.REACT, react), _defineProperty(_FRAMEWORK_MAP$1, FRAMEWORK_TYPE.VUE, vue), _FRAMEWORK_MAP$1);
+var clientConfig = FRAMEWORK_MAP$1[FRAMEWORK];
+
+var serverConfig = FRAMEWORK === FRAMEWORK_TYPE.VUE_SSR ? server$1 : server;
 var DEV_PORT = PORT + 1;
 var PROXY_LIST = Array.from(new Set(['/api', '/admin', '/api-web', '/chidori'].concat(_toConsumableArray(PROXY_URL_LIST))));
 var isApiUrl = function isApiUrl(url) {
@@ -888,7 +970,7 @@ function launchServer(_x) {
 }
 function _launchServer() {
   _launchServer = _asyncToGenerator(
-  _regeneratorRuntime.mark(function _callee(server) {
+  _regeneratorRuntime.mark(function _callee(server$$1) {
     var TAG;
     return _regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
@@ -898,7 +980,7 @@ function _launchServer() {
             logger.time(TAG);
             _context.next = 4;
             return new Promise(function (resolve) {
-              return server.listen(DEV_PORT, resolve);
+              return server$$1.listen(DEV_PORT, resolve);
             });
           case 4:
             logger.info("The dev server is running at http://local.yangqianguan.com:".concat(DEV_PORT, "/"));

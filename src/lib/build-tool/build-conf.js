@@ -6,6 +6,8 @@
 
 import config from 'config';
 
+import logger from '../logger';
+
 export const STAGE = process.env.NODE_ENV || 'dev';
 export const DEV = !(/test|feat|prod/.test(STAGE));
 
@@ -73,14 +75,17 @@ export const { // default value for buildConf
     srcMap: SRC_MAP = DEV,
 
     packageJsonPath: PACKAGE_JSON_PATH = 'package.json',
+    publicPath: PUBLIC_PATH = '/',
+    alias: WEBPACK_ALIAS = {},
     global: WEBPACK_GLOBALS = {},
 
     // webpack server config
     serverEntry: WEBPACK_SERVER_ENTRY = './server.js',
+    ssrServerEntry: WEBPACK_SSR_SERVER_ENTRY = './server.js',
     server: WEBPACK_SERVER_CONF = {},
+    ssrServer: WEBPACK_SSR_SERVER_CONF = {},
 
     // webpack client config
-    alias: WEBPACK_ALIAS = {},
     provide: WEBPACK_PROVIDES = {},
     htmlPlugin: WEBPACK_HTML_PLUGIN_CONF = {},
     cacheGroups: WEBPACK_CACHE_GROUPS = {},
@@ -100,3 +105,5 @@ export const {
     webHost: WEB_HOST = '',
     port: PORT = 8080
 } = runConf;
+
+logger.info(`FRAMEWORK=${FRAMEWORK} MODE=${MODE}`);

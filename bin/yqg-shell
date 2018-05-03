@@ -218,11 +218,6 @@ var setup = (function () {
   return Promise.all([checkVersion()]);
 });
 
-/**
- * @author panezhang
- * @date 28/12/2017-19:19
- * @file yqg-angular
- */
 var scripts$1 = [{
   filename: 'git-clean-local-branch.sh',
   desc: '清理本地的 release 分支'

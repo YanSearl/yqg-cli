@@ -13,13 +13,12 @@
 import webpack from 'webpack';
 
 import statsConf from '../webpack/stats';
-import clientConfig from '../webpack/webpack.client.config';
-import serverConfig from '../webpack/webpack.server.config';
+import webpackConfig from '../webpack/webpack.config';
 
 export default () => new Promise((resolve, reject) => {
-    const webpackConfig = [serverConfig];
-    if (clientConfig) {
-        webpackConfig.push(clientConfig);
+    if (!webpackConfig) {
+        reject(new Error('No config found.'));
+        return;
     }
 
     webpack(webpackConfig).run((err, stats) => {
