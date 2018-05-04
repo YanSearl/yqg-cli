@@ -10,7 +10,7 @@ import Vue from 'yqg-common/vue';
 import VueRouter from 'vue-router';
 
 // our modules
-import RouterMap from './RouterMap';
+import RouterMap from './router-map';
 
 Vue.use(VueRouter);
 Vue.prototype.$RouterMap = RouterMap; // access RouterMap from Vue instance

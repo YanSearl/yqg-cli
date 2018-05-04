@@ -8,7 +8,7 @@
 import Vue from 'yqg-common/vue';
 import Router from 'vue-router';
 
-import RouterMap from './RouterMap';
+import RouterMap from './router-map';
 
 Vue.use(Router);
 Vue.prototype.$RouterMap = RouterMap;
