@@ -20,15 +20,11 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
 
 // our modules
 import logger from '../../logger';
-import {FRAMEWORK_TYPE} from '../../constant';
 import runServer from '../runServer';
-import {FRAMEWORK, PROXY_URL_LIST, PORT} from '../build-conf';
+import {PROXY_URL_LIST, PORT} from '../build-conf';
 import stats from '../webpack/stats';
 import clientConfig from '../webpack/webpack.client.config';
-import spaServerConfig from '../webpack/webpack.server.config';
-import vueSsrServerConfig from '../webpack/vue-ssr/webpack.server.config';
-
-const serverConfig = FRAMEWORK === FRAMEWORK_TYPE.VUE_SSR ? vueSsrServerConfig : spaServerConfig;
+import serverConfig from '../webpack/webpack.server.config';
 
 const DEV_PORT = PORT + 1;
 

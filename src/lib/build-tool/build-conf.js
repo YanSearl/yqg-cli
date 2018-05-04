@@ -6,6 +6,7 @@
 
 import config from 'config';
 
+import {FRAMEWORK_TYPE} from '../constant';
 import logger from '../logger';
 
 export const STAGE = process.env.NODE_ENV || 'dev';
@@ -107,3 +108,18 @@ export const {
 } = runConf;
 
 logger.info(`FRAMEWORK=${FRAMEWORK} MODE=${MODE}`);
+
+// framework config
+const FRAMEWORK_CONF = {
+    [FRAMEWORK_TYPE.VUE_SSR]: {
+        styleLoader: 'vue-style-loader'
+    },
+
+    [FRAMEWORK_TYPE.VUE]: {
+        styleLoader: 'vue-style-loader'
+    }
+};
+
+export const {
+    styleLoader: STYLE_LOADER = 'style-loader'
+} = FRAMEWORK_CONF[FRAMEWORK] || {};

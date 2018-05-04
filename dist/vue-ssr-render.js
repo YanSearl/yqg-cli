@@ -163,6 +163,13 @@ var _argv$debug = argv.debug,
 var NODE_ENV = process.env.NODE_ENV;
 var VERSION_CHECK_DISABLE = !!process.env.NODE_ENV;
 var signature = "yqg-cli@".concat(version);
+var FRAMEWORK_TYPE = {
+  ANGULAR: 'angular',
+  REACT: 'react',
+  VUE: 'vue',
+  VUE_SSR: 'vue-ssr',
+  NONE: 'none'
+};
 
 var colored = function colored(chalkMethod) {
   for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -232,6 +239,7 @@ var logger = {
   }
 };
 
+var _FRAMEWORK_CONF;
 var STAGE = process.env.NODE_ENV || 'dev';
 var DEV = !/test|feat|prod/.test(STAGE);
 var STAGE_CONF = {
@@ -317,6 +325,14 @@ var _runConf = runConf,
     WEB_HOST = _runConf$webHost === void 0 ? '' : _runConf$webHost,
     _runConf$port = _runConf.port;
 logger.info("FRAMEWORK=".concat(FRAMEWORK, " MODE=").concat(MODE));
+var FRAMEWORK_CONF = (_FRAMEWORK_CONF = {}, _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.VUE_SSR, {
+  styleLoader: 'vue-style-loader'
+}), _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.VUE, {
+  styleLoader: 'vue-style-loader'
+}), _FRAMEWORK_CONF);
+var _ref2 = FRAMEWORK_CONF[FRAMEWORK] || {},
+    _ref2$styleLoader = _ref2.styleLoader,
+    STYLE_LOADER = _ref2$styleLoader === void 0 ? 'style-loader' : _ref2$styleLoader;
 
 var globals = {
   __STAGE__: JSON.stringify(STAGE),
@@ -359,13 +375,13 @@ var baseConf = {
   module: {
     rules: _toConsumableArray(rules).concat(_toConsumableArray(DEBUG$1 ? [{
       test: /\.css$/,
-      use: ['style-loader', 'css-loader']
+      use: [STYLE_LOADER, 'css-loader']
     }, {
       test: /\.scss$/,
-      use: ['style-loader', 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
+      use: [STYLE_LOADER, 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
     }, {
       test: /\.less$/,
-      use: ['style-loader', 'css-loader', {
+      use: [STYLE_LOADER, 'css-loader', {
         loader: 'less-loader',
         options: {
           javascriptEnabled: true

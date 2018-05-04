@@ -23,8 +23,8 @@ var VersionHashPlugin = _interopDefault(require('webpack-version-hash-plugin'));
 var Visualizer = _interopDefault(require('webpack-visualizer-plugin'));
 var UglifyJsPlugin = _interopDefault(require('uglifyjs-webpack-plugin'));
 var OptimizeCSSAssetsPlugin = _interopDefault(require('optimize-css-assets-webpack-plugin'));
-var VueSSRClientPlugin = _interopDefault(require('vue-server-renderer/client-plugin'));
 var nodeExternals = _interopDefault(require('webpack-node-externals'));
+var VueSSRClientPlugin = _interopDefault(require('vue-server-renderer/client-plugin'));
 var VueSSRServerPlugin = _interopDefault(require('vue-server-renderer/server-plugin'));
 var _regeneratorRuntime = _interopDefault(require('@babel/runtime/regenerator'));
 var fsExtra = require('fs-extra');
@@ -290,6 +290,7 @@ var setup = (function () {
   return Promise.all([checkVersion()]);
 });
 
+var _FRAMEWORK_CONF;
 var STAGE = process.env.NODE_ENV || 'dev';
 var DEV = !/test|feat|prod/.test(STAGE);
 var STAGE_CONF = {
@@ -387,6 +388,14 @@ var _runConf = runConf,
     _runConf$port = _runConf.port,
     PORT = _runConf$port === void 0 ? 8080 : _runConf$port;
 logger.info("FRAMEWORK=".concat(FRAMEWORK, " MODE=").concat(MODE));
+var FRAMEWORK_CONF = (_FRAMEWORK_CONF = {}, _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.VUE_SSR, {
+  styleLoader: 'vue-style-loader'
+}), _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.VUE, {
+  styleLoader: 'vue-style-loader'
+}), _FRAMEWORK_CONF);
+var _ref2 = FRAMEWORK_CONF[FRAMEWORK] || {},
+    _ref2$styleLoader = _ref2.styleLoader,
+    STYLE_LOADER = _ref2$styleLoader === void 0 ? 'style-loader' : _ref2$styleLoader;
 
 var stats = {
   colors: DEBUG$1,
@@ -449,13 +458,13 @@ var baseConf = {
   module: {
     rules: _toConsumableArray(rules).concat(_toConsumableArray(DEBUG$1 ? [{
       test: /\.css$/,
-      use: ['style-loader', 'css-loader']
+      use: [STYLE_LOADER, 'css-loader']
     }, {
       test: /\.scss$/,
-      use: ['style-loader', 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
+      use: [STYLE_LOADER, 'css-loader', 'resolve-url-loader', 'sass-loader?sourceMap']
     }, {
       test: /\.less$/,
-      use: ['style-loader', 'css-loader', {
+      use: [STYLE_LOADER, 'css-loader', {
         loader: 'less-loader',
         options: {
           javascriptEnabled: true
@@ -650,6 +659,34 @@ var server = _objectSpread({
   })), new webpack.optimize.OccurrenceOrderPlugin()]
 }, WEBPACK_SERVER_CONF);
 
+var ssrServerConf = {
+  target: 'node',
+  node: {
+    console: false,
+    global: false,
+    process: false,
+    Buffer: false,
+    __filename: false,
+    __dirname: false
+  },
+  devtool: '#source-map',
+  entry: WEBPACK_SSR_SERVER_ENTRY,
+  output: {
+    path: resolvePwd('./build'),
+    filename: 'server.js',
+    libraryTarget: 'commonjs2'
+  },
+  externals: [/vue-ssr-server-bundle\.json$/, /vue-ssr-client-manifest\.json$/, nodeExternals({
+    whitelist: /(^@yqg\/cli\/dist)|(\.css$)/
+  })],
+  plugins: [new webpack.DefinePlugin({
+    'process.env.VUE_ENV': '"server"'
+  })]
+};
+var server$1 = merge(baseConf, ssrServerConf, WEBPACK_SSR_SERVER_CONF);
+
+var server$2 = FRAMEWORK === FRAMEWORK_TYPE.VUE_SSR ? server$1 : server;
+
 var clientConf = {
   target: 'web',
   entry: {
@@ -684,36 +721,10 @@ var serverConf = {
 };
 var entryServer = merge(baseConf, serverConf, WEBPACK_SERVER_CONF);
 
-var ssrServerConf = {
-  target: 'node',
-  node: {
-    console: false,
-    global: false,
-    process: false,
-    Buffer: false,
-    __filename: false,
-    __dirname: false
-  },
-  devtool: '#source-map',
-  entry: WEBPACK_SSR_SERVER_ENTRY,
-  output: {
-    path: resolvePwd('./build'),
-    filename: 'server.js',
-    libraryTarget: 'commonjs2'
-  },
-  externals: [/vue-ssr-server-bundle\.json$/, /vue-ssr-client-manifest\.json$/, nodeExternals({
-    whitelist: /(^@yqg\/cli\/dist)|(\.css$)/
-  })],
-  plugins: [new webpack.DefinePlugin({
-    'process.env.VUE_ENV': '"server"'
-  })]
-};
-var server$1 = merge(baseConf, ssrServerConf, WEBPACK_SSR_SERVER_CONF);
-
 var vueSSR = [entryClient, entryServer, server$1];
 
 var _FRAMEWORK_MAP;
-var FRAMEWORK_MAP = (_FRAMEWORK_MAP = {}, _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.ANGULAR, [angular, server]), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.REACT, [react, server]), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.VUE, [vue, server]), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.VUE_SSR, vueSSR), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.NONE, server), _FRAMEWORK_MAP);
+var FRAMEWORK_MAP = (_FRAMEWORK_MAP = {}, _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.ANGULAR, [angular, server$2]), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.REACT, [react, server$2]), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.VUE, [vue, server$2]), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.VUE_SSR, vueSSR), _defineProperty(_FRAMEWORK_MAP, FRAMEWORK_TYPE.NONE, server$2), _FRAMEWORK_MAP);
 var webpackConfig = FRAMEWORK_MAP[FRAMEWORK];
 
 var bundle = (function () {
@@ -912,22 +923,22 @@ _regeneratorRuntime.mark(function _callee() {
   }, _callee, this);
 }));
 
-var server$2;
+var server$3;
 function killServer() {
-  if (server$2) {
-    server$2.kill('SIGTERM');
+  if (server$3) {
+    server$3.kill('SIGTERM');
   }
 }
 function runServer(serverPath) {
   return new Promise(function (resolve) {
     killServer();
-    server$2 = cp.fork(serverPath, {
+    server$3 = cp.fork(serverPath, {
       env: Object.assign({
         NODE_ENV: 'development'
       }, process.env),
       silent: false
     });
-    server$2.on('message', function () {
+    server$3.on('message', function () {
       var result = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
       return result.ready && resolve();
     });
@@ -939,7 +950,6 @@ var _FRAMEWORK_MAP$1;
 var FRAMEWORK_MAP$1 = (_FRAMEWORK_MAP$1 = {}, _defineProperty(_FRAMEWORK_MAP$1, FRAMEWORK_TYPE.ANGULAR, angular), _defineProperty(_FRAMEWORK_MAP$1, FRAMEWORK_TYPE.REACT, react), _defineProperty(_FRAMEWORK_MAP$1, FRAMEWORK_TYPE.VUE, vue), _FRAMEWORK_MAP$1);
 var clientConfig = FRAMEWORK_MAP$1[FRAMEWORK];
 
-var serverConfig = FRAMEWORK === FRAMEWORK_TYPE.VUE_SSR ? server$1 : server;
 var DEV_PORT = PORT + 1;
 var PROXY_LIST = Array.from(new Set(['/api', '/admin', '/api-web', '/chidori'].concat(_toConsumableArray(PROXY_URL_LIST))));
 var isApiUrl = function isApiUrl(url) {
@@ -970,7 +980,7 @@ function launchServer(_x) {
 }
 function _launchServer() {
   _launchServer = _asyncToGenerator(
-  _regeneratorRuntime.mark(function _callee(server$$1) {
+  _regeneratorRuntime.mark(function _callee(server) {
     var TAG;
     return _regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
@@ -980,7 +990,7 @@ function _launchServer() {
             logger.time(TAG);
             _context.next = 4;
             return new Promise(function (resolve) {
-              return server$$1.listen(DEV_PORT, resolve);
+              return server.listen(DEV_PORT, resolve);
             });
           case 4:
             logger.info("The dev server is running at http://local.yangqianguan.com:".concat(DEV_PORT, "/"));
@@ -1036,7 +1046,7 @@ function _start() {
                   while (1) {
                     switch (_context2.prev = _context2.next) {
                       case 0:
-                        _serverConfig$output = serverConfig.output, filePath = _serverConfig$output.path, filename = _serverConfig$output.filename;
+                        _serverConfig$output = server$2.output, filePath = _serverConfig$output.path, filename = _serverConfig$output.filename;
                         serverPath = path__default.join(filePath, filename);
                         _context2.next = 4;
                         return runServer(serverPath);
@@ -1079,7 +1089,7 @@ function _start() {
               next();
             });
             devServer.on('upgrade', proxyMiddleware.upgrade);
-            serverCompiler = webpack(serverConfig);
+            serverCompiler = webpack(server$2);
             serverPromise = createCompilationPromise('server', serverCompiler);
             serverCompiler.plugin('compile', function () {
               if (!runServerPromiseIsResolved) return;

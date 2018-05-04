@@ -17,6 +17,7 @@ import {
     DEBUG,
     MODE,
     CSS_HASH,
+    STYLE_LOADER,
 
     WEBPACK_ALIAS,
     WEBPACK_GLOBALS
@@ -37,14 +38,14 @@ export default {
                     {
                         test: /\.css$/,
                         use: [
-                            'style-loader',
+                            STYLE_LOADER,
                             'css-loader'
                         ]
                     },
                     {
                         test: /\.scss$/,
                         use: [
-                            'style-loader',
+                            STYLE_LOADER,
                             'css-loader',
                             'resolve-url-loader',
                             'sass-loader?sourceMap'
@@ -53,7 +54,7 @@ export default {
                     {
                         test: /\.less$/,
                         use: [
-                            'style-loader',
+                            STYLE_LOADER,
                             'css-loader',
                             {loader: 'less-loader', options: {javascriptEnabled: true}}
                         ]
