@@ -21,7 +21,7 @@ import webpackHotMiddleware from 'webpack-hot-middleware';
 // our modules
 import logger from '../../logger';
 import runServer from '../runServer';
-import {PROXY_URL_LIST, PORT} from '../build-conf';
+import {PROXY_URL_LIST, FRAMEWORK_PROXY_URL_LIST, PORT} from '../build-conf';
 import stats from '../webpack/stats';
 import clientConfig from '../webpack/webpack.client.config';
 import serverConfig from '../webpack/webpack.server.config';
@@ -33,7 +33,8 @@ const PROXY_LIST = Array.from(new Set([
     '/admin',
     '/api-web',
     '/chidori',
-    ...PROXY_URL_LIST
+    ...PROXY_URL_LIST,
+    ...FRAMEWORK_PROXY_URL_LIST
 ]));
 
 const isApiUrl = url => PROXY_LIST.some(prefix => url.startsWith(prefix));

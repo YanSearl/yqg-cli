@@ -128,7 +128,7 @@ function _nonIterableSpread() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.4";
+var version = "0.1.5";
 
 var argv = minimist(process.argv);
 var _argv$debug = argv.debug,
@@ -389,13 +389,16 @@ var _runConf = runConf,
     PORT = _runConf$port === void 0 ? 8080 : _runConf$port;
 logger.info("FRAMEWORK=".concat(FRAMEWORK, " MODE=").concat(MODE));
 var FRAMEWORK_CONF = (_FRAMEWORK_CONF = {}, _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.VUE_SSR, {
-  styleLoader: 'vue-style-loader'
+  styleLoader: 'vue-style-loader',
+  devProxy: ['/__webpack_hmr']
 }), _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.VUE, {
   styleLoader: 'vue-style-loader'
 }), _FRAMEWORK_CONF);
 var _ref2 = FRAMEWORK_CONF[FRAMEWORK] || {},
     _ref2$styleLoader = _ref2.styleLoader,
-    STYLE_LOADER = _ref2$styleLoader === void 0 ? 'style-loader' : _ref2$styleLoader;
+    STYLE_LOADER = _ref2$styleLoader === void 0 ? 'style-loader' : _ref2$styleLoader,
+    _ref2$devProxy = _ref2.devProxy,
+    FRAMEWORK_PROXY_URL_LIST = _ref2$devProxy === void 0 ? [] : _ref2$devProxy;
 
 var stats = {
   colors: DEBUG$1,
@@ -951,7 +954,7 @@ var FRAMEWORK_MAP$1 = (_FRAMEWORK_MAP$1 = {}, _defineProperty(_FRAMEWORK_MAP$1, 
 var clientConfig = FRAMEWORK_MAP$1[FRAMEWORK];
 
 var DEV_PORT = PORT + 1;
-var PROXY_LIST = Array.from(new Set(['/api', '/admin', '/api-web', '/chidori'].concat(_toConsumableArray(PROXY_URL_LIST))));
+var PROXY_LIST = Array.from(new Set(['/api', '/admin', '/api-web', '/chidori'].concat(_toConsumableArray(PROXY_URL_LIST), _toConsumableArray(FRAMEWORK_PROXY_URL_LIST))));
 var isApiUrl = function isApiUrl(url) {
   return PROXY_LIST.some(function (prefix$$1) {
     return url.startsWith(prefix$$1);

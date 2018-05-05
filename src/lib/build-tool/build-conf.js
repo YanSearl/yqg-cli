@@ -112,7 +112,8 @@ logger.info(`FRAMEWORK=${FRAMEWORK} MODE=${MODE}`);
 // framework config
 const FRAMEWORK_CONF = {
     [FRAMEWORK_TYPE.VUE_SSR]: {
-        styleLoader: 'vue-style-loader'
+        styleLoader: 'vue-style-loader',
+        devProxy: ['/__webpack_hmr']
     },
 
     [FRAMEWORK_TYPE.VUE]: {
@@ -121,5 +122,6 @@ const FRAMEWORK_CONF = {
 };
 
 export const {
-    styleLoader: STYLE_LOADER = 'style-loader'
+    styleLoader: STYLE_LOADER = 'style-loader',
+    devProxy: FRAMEWORK_PROXY_URL_LIST = []
 } = FRAMEWORK_CONF[FRAMEWORK] || {};

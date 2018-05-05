@@ -207,7 +207,7 @@ function _nonIterableSpread() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.4";
+var version = "0.1.5";
 
 var argv = minimist(process.argv);
 var _argv$debug = argv.debug,

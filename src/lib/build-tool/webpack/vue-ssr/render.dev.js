@@ -72,7 +72,7 @@ class RenderDev {
         const {app} = self;
 
         // modify client config to work with hot middleware
-        entryClientConfig.entry.app = ['webpack-hot-middleware/client', entryClientConfig.entry.app];
+        entryClientConfig.entry.app = ['webpack-hot-middleware/client?reload=true', entryClientConfig.entry.app];
         entryClientConfig.output.filename = '[name].js';
         entryClientConfig.plugins.push(
             new webpack.HotModuleReplacementPlugin(),

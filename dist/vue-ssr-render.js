@@ -155,7 +155,7 @@ var resolvePwd = function resolvePwd() {
   return path.resolve.apply(void 0, [PWD].concat(args));
 };
 
-var version = "0.1.4";
+var version = "0.1.5";
 
 var argv = minimist(process.argv);
 var _argv$debug = argv.debug,
@@ -326,13 +326,15 @@ var _runConf = runConf,
     _runConf$port = _runConf.port;
 logger.info("FRAMEWORK=".concat(FRAMEWORK, " MODE=").concat(MODE));
 var FRAMEWORK_CONF = (_FRAMEWORK_CONF = {}, _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.VUE_SSR, {
-  styleLoader: 'vue-style-loader'
+  styleLoader: 'vue-style-loader',
+  devProxy: ['/__webpack_hmr']
 }), _defineProperty(_FRAMEWORK_CONF, FRAMEWORK_TYPE.VUE, {
   styleLoader: 'vue-style-loader'
 }), _FRAMEWORK_CONF);
 var _ref2 = FRAMEWORK_CONF[FRAMEWORK] || {},
     _ref2$styleLoader = _ref2.styleLoader,
-    STYLE_LOADER = _ref2$styleLoader === void 0 ? 'style-loader' : _ref2$styleLoader;
+    STYLE_LOADER = _ref2$styleLoader === void 0 ? 'style-loader' : _ref2$styleLoader,
+    _ref2$devProxy = _ref2.devProxy;
 
 var globals = {
   __STAGE__: JSON.stringify(STAGE),
@@ -499,7 +501,7 @@ function () {
     value: function initClientCompiler() {
       var self = this;
       var app = self.app;
-      entryClientConfig.entry.app = ['webpack-hot-middleware/client', entryClientConfig.entry.app];
+      entryClientConfig.entry.app = ['webpack-hot-middleware/client?reload=true', entryClientConfig.entry.app];
       entryClientConfig.output.filename = '[name].js';
       entryClientConfig.plugins.push(new webpack.HotModuleReplacementPlugin(), new webpack.NoEmitOnErrorsPlugin());
       var clientCompiler = webpack(entryClientConfig);
