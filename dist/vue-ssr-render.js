@@ -155,7 +155,7 @@ var resolvePwd = function resolvePwd() {
   return path.resolve.apply(void 0, [PWD].concat(args));
 };
 
-var version = "0.1.5";
+var version = "0.1.6";
 
 var argv = minimist(process.argv);
 var _argv$debug = argv.debug,
