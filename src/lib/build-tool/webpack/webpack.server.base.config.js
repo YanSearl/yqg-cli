@@ -4,7 +4,6 @@
  * @file webpack.server.config
  */
 
-import fs from 'fs';
 import webpack from 'webpack';
 
 import {resolvePwd} from '../../path';
@@ -13,7 +12,7 @@ import {
     DEBUG,
     MODE,
     SRC_MAP,
-    PACKAGE_JSON_PATH,
+
     WEBPACK_GLOBALS,
     WEBPACK_SERVER_ENTRY,
     WEBPACK_SERVER_CONF
@@ -21,9 +20,7 @@ import {
 
 import globals from './globals';
 import rules from './common-rules';
-
-const packageJsonContent = fs.readFileSync(resolvePwd(PACKAGE_JSON_PATH)).toString();
-const Package = JSON.parse(packageJsonContent);
+import externals from './node-externals';
 
 export default {
     target: 'node',
@@ -50,10 +47,7 @@ export default {
     cache: DEBUG,
 
     module: {rules},
-    externals: [
-        ...Object.keys(Package.dependencies),
-        ...Object.keys(Package.devDependencies)
-    ],
+    externals,
 
     plugins: [
         new webpack.DefinePlugin({

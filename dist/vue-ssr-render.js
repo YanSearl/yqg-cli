@@ -155,7 +155,7 @@ var resolvePwd = function resolvePwd() {
   return path.resolve.apply(void 0, [PWD].concat(args));
 };
 
-var version = "0.1.6";
+var version = "0.1.7";
 
 var argv = minimist(process.argv);
 var _argv$debug = argv.debug,
@@ -430,6 +430,12 @@ var clientConf = {
 };
 var entryClientConfig = merge(baseConf, clientConf, WEBPACK_CLIENT_CONF);
 
+var externals = nodeExternals({
+  whitelist: [/^@yqg\/cli\/dist/, /\.css$/].concat(_toConsumableArray(Object.keys(WEBPACK_ALIAS).map(function (name) {
+    return new RegExp("^".concat(name));
+  })))
+});
+
 var serverConf = {
   target: 'node',
   devtool: '#source-map',
@@ -439,9 +445,7 @@ var serverConf = {
     filename: 'entry-server.js',
     libraryTarget: 'commonjs2'
   },
-  externals: nodeExternals({
-    whitelist: /\.css$/
-  }),
+  externals: externals,
   plugins: [new webpack.DefinePlugin({
     'process.env.VUE_ENV': '"server"'
   }), new VueSSRServerPlugin()]

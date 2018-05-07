@@ -6,7 +6,6 @@
 
 import webpack from 'webpack';
 import merge from 'webpack-merge';
-import nodeExternals from 'webpack-node-externals';
 import VueSSRServerPlugin from 'vue-server-renderer/server-plugin';
 
 import {resolvePwd} from '../../../path';
@@ -16,6 +15,7 @@ import {
 } from '../../build-conf';
 
 import baseConf from '../webpack.base.config';
+import externals from '../node-externals';
 
 const serverConf = {
     target: 'node',
@@ -30,12 +30,7 @@ const serverConf = {
         libraryTarget: 'commonjs2'
     },
 
-    // https://webpack.js.org/configuration/externals/#externals
-    // https://github.com/liady/webpack-node-externals
-    externals: nodeExternals({
-        // do not externalize CSS files in case we need to import it from a dep
-        whitelist: /\.css$/
-    }),
+    externals,
 
     plugins: [
         new webpack.DefinePlugin({

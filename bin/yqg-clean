@@ -128,7 +128,7 @@ function _nonIterableSpread() {
 }
 
 var name = "@yqg/cli";
-var version = "0.1.6";
+var version = "0.1.7";
 
 var argv = minimist(process.argv);
 var _argv$debug = argv.debug,
@@ -632,8 +632,12 @@ var vueConf = {
 };
 var vue = merge(baseConf$1, vueConf, WEBPACK_CLIENT_CONF);
 
-var packageJsonContent = fs__default.readFileSync(resolvePwd(PACKAGE_JSON_PATH)).toString();
-var Package = JSON.parse(packageJsonContent);
+var externals = nodeExternals({
+  whitelist: [/^@yqg\/cli\/dist/, /\.css$/].concat(_toConsumableArray(Object.keys(WEBPACK_ALIAS).map(function (name) {
+    return new RegExp("^".concat(name));
+  })))
+});
+
 var server = _objectSpread({
   target: 'node',
   mode: MODE,
@@ -656,7 +660,7 @@ var server = _objectSpread({
   module: {
     rules: rules
   },
-  externals: _toConsumableArray(Object.keys(Package.dependencies)).concat(_toConsumableArray(Object.keys(Package.devDependencies))),
+  externals: externals,
   plugins: [new webpack.DefinePlugin(_objectSpread({}, globals, WEBPACK_GLOBALS, {
     __BROWSER__: false
   })), new webpack.optimize.OccurrenceOrderPlugin()]
@@ -679,9 +683,7 @@ var ssrServerConf = {
     filename: 'server.js',
     libraryTarget: 'commonjs2'
   },
-  externals: [/vue-ssr-server-bundle\.json$/, /vue-ssr-client-manifest\.json$/, nodeExternals({
-    whitelist: /(^@yqg\/cli\/dist)|(\.css$)/
-  })],
+  externals: [/vue-ssr-server-bundle\.json$/, /vue-ssr-client-manifest\.json$/, externals],
   plugins: [new webpack.DefinePlugin({
     'process.env.VUE_ENV': '"server"'
   })]
@@ -715,9 +717,7 @@ var serverConf = {
     filename: 'entry-server.js',
     libraryTarget: 'commonjs2'
   },
-  externals: nodeExternals({
-    whitelist: /\.css$/
-  }),
+  externals: externals,
   plugins: [new webpack.DefinePlugin({
     'process.env.VUE_ENV': '"server"'
   }), new VueSSRServerPlugin()]

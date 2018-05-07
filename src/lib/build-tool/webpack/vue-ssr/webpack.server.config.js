@@ -6,7 +6,6 @@
 
 import webpack from 'webpack';
 import merge from 'webpack-merge';
-import nodeExternals from 'webpack-node-externals';
 
 import {resolvePwd} from '../../../path';
 import {
@@ -15,6 +14,7 @@ import {
 } from '../../build-conf';
 
 import baseConf from '../webpack.base.config';
+import externals from '../node-externals';
 
 const ssrServerConf = {
     target: 'node',
@@ -41,10 +41,7 @@ const ssrServerConf = {
     externals: [
         /vue-ssr-server-bundle\.json$/,
         /vue-ssr-client-manifest\.json$/,
-        nodeExternals({
-            // do not externalize CSS files in case we need to import it from a dep
-            whitelist: /(^@yqg\/cli\/dist)|(\.css$)/
-        })
+        externals
     ],
 
     plugins: [
