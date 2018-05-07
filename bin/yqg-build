@@ -11,9 +11,9 @@ var fs__default = _interopDefault(fs);
 var expandTilde = _interopDefault(require('expand-tilde'));
 var getPackageInfo = _interopDefault(require('package-json'));
 var semver = _interopDefault(require('semver'));
-var config = _interopDefault(require('config'));
 var path = require('path');
 var path__default = _interopDefault(path);
+var config = _interopDefault(require('config'));
 var webpack = _interopDefault(require('webpack'));
 var FriendlyErrorsPlugin = _interopDefault(require('friendly-errors-webpack-plugin'));
 var MiniCssExtractPlugin = _interopDefault(require('mini-css-extract-plugin'));
@@ -290,6 +290,14 @@ var setup = (function () {
   return Promise.all([checkVersion()]);
 });
 
+var PWD = process.cwd();
+var resolvePwd = function resolvePwd() {
+  for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+    args[_key5] = arguments[_key5];
+  }
+  return path.resolve.apply(void 0, [PWD].concat(args));
+};
+
 var _FRAMEWORK_CONF;
 var STAGE = process.env.NODE_ENV || 'dev';
 var DEV = !/test|feat|prod/.test(STAGE);
@@ -353,7 +361,7 @@ var _buildConf = buildConf,
     _buildConf$publicPath = _buildConf.publicPath,
     PUBLIC_PATH = _buildConf$publicPath === void 0 ? '/' : _buildConf$publicPath,
     _buildConf$alias = _buildConf.alias,
-    WEBPACK_ALIAS = _buildConf$alias === void 0 ? {} : _buildConf$alias,
+    WEBPACK_ALIAS_ORIGIN = _buildConf$alias === void 0 ? {} : _buildConf$alias,
     _buildConf$global = _buildConf.global,
     WEBPACK_GLOBALS = _buildConf$global === void 0 ? {} : _buildConf$global,
     _buildConf$serverEntr = _buildConf.serverEntry,
@@ -380,6 +388,15 @@ var _buildConf = buildConf,
     COPY_CONF = _buildConf$copy === void 0 ? {} : _buildConf$copy,
     _buildConf$devProxy = _buildConf.devProxy,
     PROXY_URL_LIST = _buildConf$devProxy === void 0 ? [] : _buildConf$devProxy;
+var WEBPACK_ALIAS = {};
+Object.keys(WEBPACK_ALIAS_ORIGIN).forEach(function (key) {
+  var modulePath = WEBPACK_ALIAS_ORIGIN[key];
+  if (modulePath.startsWith('./') || modulePath.startsWith('../')) {
+    WEBPACK_ALIAS[key] = resolvePwd(modulePath);
+  } else {
+    WEBPACK_ALIAS[key] = modulePath;
+  }
+});
 var _runConf = runConf,
     _runConf$apiHost = _runConf.apiHost,
     API_HOST = _runConf$apiHost === void 0 ? '' : _runConf$apiHost,
@@ -410,14 +427,6 @@ var stats = {
   chunkModules: VERBOSE,
   cached: VERBOSE,
   cachedAssets: VERBOSE
-};
-
-var PWD = process.cwd();
-var resolvePwd = function resolvePwd() {
-  for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
-    args[_key5] = arguments[_key5];
-  }
-  return path.resolve.apply(void 0, [PWD].concat(args));
 };
 
 var globals = {

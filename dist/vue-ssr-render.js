@@ -299,7 +299,7 @@ var _buildConf = buildConf,
     _buildConf$publicPath = _buildConf.publicPath,
     PUBLIC_PATH = _buildConf$publicPath === void 0 ? '/' : _buildConf$publicPath,
     _buildConf$alias = _buildConf.alias,
-    WEBPACK_ALIAS = _buildConf$alias === void 0 ? {} : _buildConf$alias,
+    WEBPACK_ALIAS_ORIGIN = _buildConf$alias === void 0 ? {} : _buildConf$alias,
     _buildConf$global = _buildConf.global,
     WEBPACK_GLOBALS = _buildConf$global === void 0 ? {} : _buildConf$global,
     _buildConf$serverEntr = _buildConf.serverEntry,
@@ -318,6 +318,15 @@ var _buildConf = buildConf,
     _buildConf$clean = _buildConf.clean,
     _buildConf$copy = _buildConf.copy,
     _buildConf$devProxy = _buildConf.devProxy;
+var WEBPACK_ALIAS = {};
+Object.keys(WEBPACK_ALIAS_ORIGIN).forEach(function (key) {
+  var modulePath = WEBPACK_ALIAS_ORIGIN[key];
+  if (modulePath.startsWith('./') || modulePath.startsWith('../')) {
+    WEBPACK_ALIAS[key] = resolvePwd(modulePath);
+  } else {
+    WEBPACK_ALIAS[key] = modulePath;
+  }
+});
 var _runConf = runConf,
     _runConf$apiHost = _runConf.apiHost,
     API_HOST = _runConf$apiHost === void 0 ? '' : _runConf$apiHost,

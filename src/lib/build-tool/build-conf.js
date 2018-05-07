@@ -8,6 +8,7 @@ import config from 'config';
 
 import {FRAMEWORK_TYPE} from '../constant';
 import logger from '../logger';
+import {resolvePwd} from '../path';
 
 export const STAGE = process.env.NODE_ENV || 'dev';
 export const DEV = !(/test|feat|prod/.test(STAGE));
@@ -77,7 +78,7 @@ export const { // default value for buildConf
 
     packageJsonPath: PACKAGE_JSON_PATH = 'package.json',
     publicPath: PUBLIC_PATH = '/',
-    alias: WEBPACK_ALIAS = {},
+    alias: WEBPACK_ALIAS_ORIGIN = {},
     global: WEBPACK_GLOBALS = {},
 
     // webpack server config
@@ -100,6 +101,16 @@ export const { // default value for buildConf
     // script start
     devProxy: PROXY_URL_LIST = []
 } = buildConf;
+
+export const WEBPACK_ALIAS = {};
+Object.keys(WEBPACK_ALIAS_ORIGIN).forEach((key) => {
+    const modulePath = WEBPACK_ALIAS_ORIGIN[key];
+    if (modulePath.startsWith('./') || modulePath.startsWith('../')) { // consider relative path to pwd
+        WEBPACK_ALIAS[key] = resolvePwd(modulePath);
+    } else {
+        WEBPACK_ALIAS[key] = modulePath;
+    }
+});
 
 export const {
     apiHost: API_HOST = '',
