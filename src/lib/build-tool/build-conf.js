@@ -8,7 +8,7 @@ import config from 'config';
 
 import {FRAMEWORK_TYPE} from '../constant';
 import logger from '../logger';
-import {resolvePwd} from '../path';
+import {resolvePropertyPath} from '../path';
 
 export const STAGE = process.env.NODE_ENV || 'dev';
 export const DEV = !(/test|feat|prod/.test(STAGE));
@@ -78,7 +78,7 @@ export const { // default value for buildConf
 
     packageJsonPath: PACKAGE_JSON_PATH = 'package.json',
     publicPath: PUBLIC_PATH = '/',
-    alias: WEBPACK_ALIAS_ORIGIN = {},
+    alias: _WEBPACK_ALIAS = {},
     global: WEBPACK_GLOBALS = {},
 
     // webpack server config
@@ -88,7 +88,7 @@ export const { // default value for buildConf
     ssrServer: WEBPACK_SSR_SERVER_CONF = {},
 
     // webpack client config
-    provide: WEBPACK_PROVIDES = {},
+    provide: _WEBPACK_PROVIDES = {},
     htmlPlugin: WEBPACK_HTML_PLUGIN_CONF = {},
     cacheGroups: WEBPACK_CACHE_GROUPS = {},
     clientEntry: WEBPACK_CLIENT_ENTRY = './common/app/index.js',
@@ -102,15 +102,8 @@ export const { // default value for buildConf
     devProxy: PROXY_URL_LIST = []
 } = buildConf;
 
-export const WEBPACK_ALIAS = {};
-Object.keys(WEBPACK_ALIAS_ORIGIN).forEach((key) => {
-    const modulePath = WEBPACK_ALIAS_ORIGIN[key];
-    if (modulePath.startsWith('./') || modulePath.startsWith('../')) { // consider relative path to pwd
-        WEBPACK_ALIAS[key] = resolvePwd(modulePath);
-    } else {
-        WEBPACK_ALIAS[key] = modulePath;
-    }
-});
+export const WEBPACK_ALIAS = resolvePropertyPath(_WEBPACK_ALIAS);
+export const WEBPACK_PROVIDES = resolvePropertyPath(_WEBPACK_PROVIDES, {array: true});
 
 export const {
     apiHost: API_HOST = '',

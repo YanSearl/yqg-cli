@@ -37,6 +37,20 @@ var opn = _interopDefault(require('opn'));
 var webpackDevMiddleware = _interopDefault(require('webpack-dev-middleware'));
 var webpackHotMiddleware = _interopDefault(require('webpack-hot-middleware'));
 
+function _typeof(obj) {
+  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+    _typeof = function (obj) {
+      return typeof obj;
+    };
+  } else {
+    _typeof = function (obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+  }
+
+  return _typeof(obj);
+}
+
 function _asyncToGenerator(fn) {
   return function () {
     var self = this,
@@ -297,6 +311,41 @@ var resolvePwd = function resolvePwd() {
   }
   return path.resolve.apply(void 0, [PWD].concat(args));
 };
+var resolvePropertyPath = function resolvePropertyPath(obj) {
+  var _ref = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+      _ref$dir = _ref.dir,
+      dir = _ref$dir === void 0 ? PWD : _ref$dir,
+      _ref$properties = _ref.properties,
+      properties = _ref$properties === void 0 ? Object.keys(obj) : _ref$properties,
+      _ref$array = _ref.array,
+      array = _ref$array === void 0 ? false : _ref$array,
+      _ref$deep = _ref.deep,
+      deep = _ref$deep === void 0 ? false : _ref$deep;
+  var resultObj = _objectSpread({}, obj);
+  var resolveAbsPath = function resolveAbsPath() {
+    var path$$1 = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+    if (path$$1.startsWith('./') || path$$1.startsWith('../')) {
+      return path.resolve(dir, path$$1);
+    }
+    return path$$1;
+  };
+  properties.forEach(function (property) {
+    var propertyValue = obj[property];
+    if (typeof propertyValue === 'string') {
+      resultObj[property] = resolveAbsPath(propertyValue);
+    } else if (array && Array.isArray(propertyValue)) {
+      resultObj[property] = propertyValue.map(resolveAbsPath);
+    } else if (deep && _typeof(propertyValue) === 'object') {
+      resultObj[property] = resolvePropertyPath(propertyValue, {
+        dir: dir,
+        properties: properties,
+        array: array,
+        deep: deep
+      });
+    }
+  });
+  return resultObj;
+};
 
 var _FRAMEWORK_CONF;
 var STAGE = process.env.NODE_ENV || 'dev';
@@ -361,7 +410,7 @@ var _buildConf = buildConf,
     _buildConf$publicPath = _buildConf.publicPath,
     PUBLIC_PATH = _buildConf$publicPath === void 0 ? '/' : _buildConf$publicPath,
     _buildConf$alias = _buildConf.alias,
-    WEBPACK_ALIAS_ORIGIN = _buildConf$alias === void 0 ? {} : _buildConf$alias,
+    _WEBPACK_ALIAS = _buildConf$alias === void 0 ? {} : _buildConf$alias,
     _buildConf$global = _buildConf.global,
     WEBPACK_GLOBALS = _buildConf$global === void 0 ? {} : _buildConf$global,
     _buildConf$serverEntr = _buildConf.serverEntry,
@@ -373,7 +422,7 @@ var _buildConf = buildConf,
     _buildConf$ssrServer = _buildConf.ssrServer,
     WEBPACK_SSR_SERVER_CONF = _buildConf$ssrServer === void 0 ? {} : _buildConf$ssrServer,
     _buildConf$provide = _buildConf.provide,
-    WEBPACK_PROVIDES = _buildConf$provide === void 0 ? {} : _buildConf$provide,
+    _WEBPACK_PROVIDES = _buildConf$provide === void 0 ? {} : _buildConf$provide,
     _buildConf$htmlPlugin = _buildConf.htmlPlugin,
     WEBPACK_HTML_PLUGIN_CONF = _buildConf$htmlPlugin === void 0 ? {} : _buildConf$htmlPlugin,
     _buildConf$cacheGroup = _buildConf.cacheGroups,
@@ -388,14 +437,9 @@ var _buildConf = buildConf,
     COPY_CONF = _buildConf$copy === void 0 ? {} : _buildConf$copy,
     _buildConf$devProxy = _buildConf.devProxy,
     PROXY_URL_LIST = _buildConf$devProxy === void 0 ? [] : _buildConf$devProxy;
-var WEBPACK_ALIAS = {};
-Object.keys(WEBPACK_ALIAS_ORIGIN).forEach(function (key) {
-  var modulePath = WEBPACK_ALIAS_ORIGIN[key];
-  if (modulePath.startsWith('./') || modulePath.startsWith('../')) {
-    WEBPACK_ALIAS[key] = resolvePwd(modulePath);
-  } else {
-    WEBPACK_ALIAS[key] = modulePath;
-  }
+var WEBPACK_ALIAS = resolvePropertyPath(_WEBPACK_ALIAS);
+var WEBPACK_PROVIDES = resolvePropertyPath(_WEBPACK_PROVIDES, {
+  array: true
 });
 var _runConf = runConf,
     _runConf$apiHost = _runConf.apiHost,
