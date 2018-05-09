@@ -204,7 +204,7 @@ var resolvePropertyPath = function resolvePropertyPath(obj) {
   return resultObj;
 };
 
-var version = "0.1.8";
+var version = "0.1.9";
 
 var argv = minimist(process.argv);
 var _argv$debug = argv.debug,

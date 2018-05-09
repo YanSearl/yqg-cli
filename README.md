@@ -115,10 +115,6 @@ As yqg-cli build tool is depending on [**node-config**](https://github.com/loren
 /*
  * @file config/default.js
  */
-const path = require('path');
-
-const PWD = process.cwd();
-const resolvePwd = (...args) => path.resolve(PWD, ...args);
 
 module.exports = {
     build: {
@@ -136,12 +132,12 @@ module.exports = {
         },
 
         alias: { // alias used by webpack resolve
-            'yqg-common': resolvePwd('../common/src')
+            'yqg-common': '../common/src'
         },
 
         htmlPlugin: { // html plugin options
-            template: resolvePwd('./src/fe/index.html'),
-            favicon: resolvePwd('./src/fe/fav.png')
+            template: './src/fe/index.html',
+            favicon: './src/fe/fav.png'
         },
 
         clientEntry: './src/fe/main.js',
@@ -192,7 +188,32 @@ server.listen(port, () => {
 });
 ```
 
-After these three steps, now cd to your project root dir, and run `npm start` to start the dev server, or run `npm build` to build your project for release.
+### Step 4(if ssr): using ssr Render
+
+```javascript
+import Render from '@yqg/cli/dist/vue-ssr-render';
+
+const templatePath = path.resolve(__dirname, './index.html');
+const render = new Render(server, {templatePath});
+
+server.use(async (ctx) => {
+    const context = {title: DEFAULT_TITLE, url: ctx.req.url};
+    const renderer = await render.get();
+    ctx.set('Content-Type', 'text/html; charset=utf-8');
+    ctx.body = await new Promise((resolve, reject) => renderer.renderToString(context, (err, html) => {
+        if (err) {
+            logger.error('服务端渲染出错', err);
+            return reject(err);
+        }
+
+        return resolve(html);
+    }));
+});
+```
+
+
+
+After these steps, now cd to your project root dir, and run `npm start` to start the dev server, or run `npm build` to build your project for release.
 
 Note: you can use a global `yqg` command to run `yqg start` or `yqg build`, but this is not recommanded, because different projects may use different versions of `yqg-cli`.
 
@@ -211,10 +232,13 @@ Assum `DEV` is true when NODE_ENV is not one of test/feat/prod.
 | build.cssHash         | DEV ? 'hash' : 'contenthash'               |                                       |
 | build.srcMap          | DEV                                        |                                       |
 | build.packageJsonPath | 'package.json'                             | copy 的 package.json 的路径           |
+| build.publicPath | '/' | webpack output.publicPath |
+| build.alias           | see blow                                   | used by webpack.resolve               |
 | build.global          | see blow                                   | used by webpack.DefinePlugin          |
 | build.serverEntry     | './server.js'                              |                                       |
+| build.ssrServerEntry     | './server.js' |      | SSR Server Entry |
 | build.server          | {}                                         | 用于覆盖 server.config.js，不推荐使用 |
-| build.alias           | see blow                                   | used by webpack.resolve               |
+| build.ssrServer          | {}                                         | 用于覆盖 ssrServer.config.js，不推荐使用 |
 | build.provide         | see blow                                   | used by webpack.ProvidePlugin         |
 | build.htmlPlugin      | {}                                         | options for html-webpack-plugin       |
 | build.cacheGroups | {} | extra cacheGroups |
