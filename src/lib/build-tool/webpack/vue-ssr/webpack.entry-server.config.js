@@ -10,6 +10,7 @@ import VueSSRServerPlugin from 'vue-server-renderer/server-plugin';
 
 import {resolvePwd} from '../../../path';
 import {
+    PUBLIC_PATH,
     WEBPACK_SERVER_ENTRY,
     WEBPACK_SERVER_CONF
 } from '../../build-conf';
@@ -26,6 +27,7 @@ const serverConf = {
 
     output: {
         path: resolvePwd('./build'),
+        publicPath: PUBLIC_PATH,
         filename: 'entry-server.js',
         libraryTarget: 'commonjs2'
     },

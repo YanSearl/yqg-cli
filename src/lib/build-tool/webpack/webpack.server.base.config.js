@@ -13,6 +13,7 @@ import {
     MODE,
     SRC_MAP,
 
+    PUBLIC_PATH,
     WEBPACK_GLOBALS,
     WEBPACK_SERVER_ENTRY,
     WEBPACK_SERVER_CONF
@@ -39,6 +40,7 @@ export default {
 
     output: {
         path: resolvePwd('./build'),
+        publicPath: PUBLIC_PATH,
         filename: 'server.js',
         libraryTarget: 'commonjs2'
     },

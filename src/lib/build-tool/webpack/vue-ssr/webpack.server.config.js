@@ -9,6 +9,7 @@ import merge from 'webpack-merge';
 
 import {resolvePwd} from '../../../path';
 import {
+    PUBLIC_PATH,
     WEBPACK_SSR_SERVER_ENTRY,
     WEBPACK_SSR_SERVER_CONF
 } from '../../build-conf';
@@ -32,6 +33,7 @@ const ssrServerConf = {
 
     output: {
         path: resolvePwd('./build'),
+        publicPath: PUBLIC_PATH,
         filename: 'server.js',
         libraryTarget: 'commonjs2'
     },
