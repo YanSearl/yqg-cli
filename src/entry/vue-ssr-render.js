@@ -3,10 +3,8 @@
  * @date 2018/5/3-21:06
  * @file vue-ssr-render
  */
+/* eslint-disable global-require */
 
-import Render from '../lib/build-tool/webpack/vue-ssr/render';
-import DevRender from '../lib/build-tool/webpack/vue-ssr/render.dev';
-
-import {DEV} from '../lib/build-tool/build-conf';
-
-export default DEV ? DevRender : Render;
+export default process.env.NODE_ENV === 'production'
+    ? require('./vue-ssr-render.production')
+    : require('./vue-ssr-render.development');
