@@ -1,0 +1,6 @@
+<div class="container">
+    <div class="index">
+        <router-link :to="{name: 'demo', params: {id: 1}}">Demo 1</router-link>
+        <p>This is index page.</p>
+    </div>
+</div>

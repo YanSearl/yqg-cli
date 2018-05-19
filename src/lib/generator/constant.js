@@ -17,6 +17,7 @@ export const VUE_TEMPLATE_TYPE = {
     MODAL_EC: 'modal-ec',
     MODEL_MUSE: 'modal-muse',
     PROJECT: 'project',
+    PROJECT_SSR: 'project-ssr',
     PROJECT_USER: 'project-user'
 };
 

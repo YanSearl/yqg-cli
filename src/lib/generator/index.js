@@ -14,6 +14,7 @@ import AngularComponentGenerator from './AngularComponentGenerator';
 
 import VueGenerator from './VueGenerator';
 import VueProjectGenerator from './VueProjectGenerator';
+import VueProjectSSRGenerator from './VueProjectSSRGenerator';
 import VueProjectUserGenerator from './VueProjectUserGenerator';
 
 const GENERATOR_CONF = {
@@ -24,6 +25,7 @@ const GENERATOR_CONF = {
 
     [FRAMEWORK_TYPE.VUE]: {
         [VUE_TEMPLATE_TYPE.PROJECT]: VueProjectGenerator,
+        [VUE_TEMPLATE_TYPE.PROJECT_SSR]: VueProjectSSRGenerator,
         [VUE_TEMPLATE_TYPE.PROJECT_USER]: VueProjectUserGenerator,
         default: VueGenerator
     }

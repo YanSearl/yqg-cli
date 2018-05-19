@@ -9,6 +9,7 @@ import path from 'path';
 
 import babel from 'rollup-plugin-babel';
 import json from 'rollup-plugin-json';
+import string from 'rollup-plugin-string'; // eslint-disable-line import/extensions
 import cleanup from 'rollup-plugin-cleanup';
 
 const resolvePath = (...args) => path.resolve(__dirname, ...args);
@@ -64,6 +65,7 @@ export default [
 
         plugins: [
             json(),
+            string({include: '**/*.txt'}),
             babel(babelOptions),
             cleanup({comments: 'none'})
         ]
@@ -79,6 +81,7 @@ export default [
 
         plugins: [
             json(),
+            string({include: '**/*.txt'}),
             babel(babelOptions),
             cleanup({comments: 'none'})
         ]

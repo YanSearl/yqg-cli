@@ -1,0 +1,4 @@
+<div class="demo">
+    Current: {{ id }} - {{ item.timestamp }}, Click to visit
+    <router-link :to="{name: 'demo', params: {id: nextId}}">Demo {{ nextId }}</router-link>
+</div>

@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <meta charset="utf-8">
+    <meta name="description" content="Universe Vue SSR Web App">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+<!--vue-ssr-outlet-->
+</body>
+</html>

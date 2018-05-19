@@ -1,0 +1,6 @@
+{% extends 'layout/common.njk' %}
+{% block title %} {{ title }} {% endblock %}
+
+{% block body %}
+    <p>This is just an awesome page.</p>
+{% endblock %}

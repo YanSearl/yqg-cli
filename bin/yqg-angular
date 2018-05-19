@@ -245,6 +245,7 @@ var VUE_TEMPLATE_TYPE = {
   MODAL_EC: 'modal-ec',
   MODEL_MUSE: 'modal-muse',
   PROJECT: 'project',
+  PROJECT_SSR: 'project-ssr',
   PROJECT_USER: 'project-user'
 };
 var FRAMEWORK_TYPE$1 = {
@@ -879,6 +880,88 @@ function (_VueGenerator) {
   return VueProjectGenerator;
 }(VueGenerator);
 
+function handlePort$1(port) {
+  var digitalPort = parseInt(port, 10);
+  if (Number.isNaN(digitalPort)) {
+    throw new Error('Port should be parsed into number!');
+  }
+  return {
+    port: "".concat(digitalPort)
+  };
+}
+var VueProjectSSRGenerator =
+function (_VueGenerator) {
+  function VueProjectSSRGenerator() {
+    _classCallCheck(this, VueProjectSSRGenerator);
+    return _possibleConstructorReturn(this, _getPrototypeOf(VueProjectSSRGenerator).apply(this, arguments));
+  }
+  _createClass(VueProjectSSRGenerator, [{
+    key: "getExtraRenderData",
+    value: function () {
+      var _getExtraRenderData = _asyncToGenerator(
+      _regeneratorRuntime.mark(function _callee(commonRenderData) {
+        var extraRenderData, _ref, port;
+        return _regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return _get(_getPrototypeOf(VueProjectSSRGenerator.prototype), "getExtraRenderData", this).call(this, commonRenderData);
+              case 2:
+                extraRenderData = _context.sent;
+                _context.next = 5;
+                return prompt$1({
+                  port: {
+                    description: 'Enter default port',
+                    message: 'Port should not be empty!',
+                    pattern: /^\d+$/,
+                    required: true
+                  }
+                });
+              case 5:
+                _ref = _context.sent;
+                port = _ref.port;
+                Object.assign(extraRenderData, handlePort$1(port));
+                return _context.abrupt("return", extraRenderData);
+              case 9:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+      return function getExtraRenderData(_x) {
+        return _getExtraRenderData.apply(this, arguments);
+      };
+    }()
+  }, {
+    key: "onFinish",
+    value: function () {
+      var _onFinish = _asyncToGenerator(
+      _regeneratorRuntime.mark(function _callee2(renderData) {
+        var dest;
+        return _regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                dest = "".concat(this.dest, "/").concat(renderData.hyphenName);
+                console.log("\n\n\u8BF7\u5230 ".concat(chalk.yellow(dest), " \u76EE\u5F55\u521B\u5EFA node_modules \u8F6F\u94FE\u63A5\uFF0C\u5E76\u6DFB\u52A0\u5230 git \u4E2D.\n\n"));
+              case 2:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+      return function onFinish(_x2) {
+        return _onFinish.apply(this, arguments);
+      };
+    }()
+  }]);
+  _inherits(VueProjectSSRGenerator, _VueGenerator);
+  return VueProjectSSRGenerator;
+}(VueGenerator);
+
 var VueProjectUserGenerator =
 function (_VueGenerator) {
   function VueProjectUserGenerator() {
@@ -960,7 +1043,7 @@ function (_VueGenerator) {
 }(VueGenerator);
 
 var _FRAMEWORK_TYPE$ANGUL, _FRAMEWORK_TYPE$VUE, _GENERATOR_CONF;
-var GENERATOR_CONF = (_GENERATOR_CONF = {}, _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE$1.ANGULAR, (_FRAMEWORK_TYPE$ANGUL = {}, _defineProperty(_FRAMEWORK_TYPE$ANGUL, ANGULAR_TEMPLATE_TYPE.COMPONENT, AngularComponentGenerator), _defineProperty(_FRAMEWORK_TYPE$ANGUL, "default", AngularGenerator), _FRAMEWORK_TYPE$ANGUL)), _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE$1.VUE, (_FRAMEWORK_TYPE$VUE = {}, _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT, VueProjectGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT_USER, VueProjectUserGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, "default", VueGenerator), _FRAMEWORK_TYPE$VUE)), _GENERATOR_CONF);
+var GENERATOR_CONF = (_GENERATOR_CONF = {}, _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE$1.ANGULAR, (_FRAMEWORK_TYPE$ANGUL = {}, _defineProperty(_FRAMEWORK_TYPE$ANGUL, ANGULAR_TEMPLATE_TYPE.COMPONENT, AngularComponentGenerator), _defineProperty(_FRAMEWORK_TYPE$ANGUL, "default", AngularGenerator), _FRAMEWORK_TYPE$ANGUL)), _defineProperty(_GENERATOR_CONF, FRAMEWORK_TYPE$1.VUE, (_FRAMEWORK_TYPE$VUE = {}, _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT, VueProjectGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT_SSR, VueProjectSSRGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, VUE_TEMPLATE_TYPE.PROJECT_USER, VueProjectUserGenerator), _defineProperty(_FRAMEWORK_TYPE$VUE, "default", VueGenerator), _FRAMEWORK_TYPE$VUE)), _GENERATOR_CONF);
 var generator = (function () {
   var _ref2 = _asyncToGenerator(
   _regeneratorRuntime.mark(function _callee(_ref) {

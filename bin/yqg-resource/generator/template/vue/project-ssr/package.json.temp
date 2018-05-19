@@ -1,0 +1,11 @@
+{
+  "name": "<%= hyphenName %>",
+  "scripts": {
+    "clean": "yqg clean",
+    "copy": "yqg copy",
+    "bundle": "yqg bundle",
+    "build": "yqg build",
+    "start": "yqg start",
+    "prestart": "yqg shell check-package-json.sh ../../"
+  }
+}
