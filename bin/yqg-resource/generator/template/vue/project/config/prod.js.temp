@@ -8,6 +8,7 @@
 module.exports = {
     run: {
         debug: false,
-        webHost: 'https://<%= hyphenShortName %>.yangqianguan.com'
+        webHost: 'https://<%= hyphenShortName %>.yangqianguan.com',
+        robotsPath: 'robots-prod.txt'
     }
 };

@@ -1,5 +1,5 @@
 {
-    "project.name": "yqg-web-cli",
+    "project.name": "Yangqianguan Web Command Line Interface",
     "phabricator.uri": "https://code.yangqianguan.com/",
     "phutil_libraries": {
         "libcustom": "node_modules/@yqg/arcanist"

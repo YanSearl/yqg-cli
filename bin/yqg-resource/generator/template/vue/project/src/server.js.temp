@@ -7,17 +7,18 @@
 
 import path from 'path';
 
+import config from 'config';
 import express from 'express';
 
-const resolveIndex = () => path.resolve(__dirname, './public/index.html');
+const resolvePublic = (...args) => path.resolve(__dirname, './public', ...args);
+const publicPath = resolvePublic();
+const indexPath = resolvePublic('./index.html');
+const robotsPath = resolvePublic(config.get('run.robotsPath'));
+
 const app = express();
 
-app.use(express.static(path.resolve(__dirname, './public')));
-
-app.use((req, res) => {
-    const index = resolveIndex();
-
-    res.sendFile(index);
-});
+app.use('/robots.txt', (req, res) => res.sendFile(robotsPath));
+app.use(express.static(publicPath));
+app.use((req, res) => res.sendFile(indexPath));
 
 export default app;
