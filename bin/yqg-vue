@@ -22,7 +22,7 @@ var moment = _interopDefault(require('moment'));
 require('@babel/polyfill');
 
 var name = "@yqg/cli";
-var version = "0.1.11";
+var version = "0.1.12";
 
 var argv = minimist(process.argv);
 var _argv$debug = argv.debug,
