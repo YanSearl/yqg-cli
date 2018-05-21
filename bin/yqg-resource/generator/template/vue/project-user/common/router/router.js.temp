@@ -10,16 +10,13 @@ import Vue from 'yqg-common/vue';
 import VueRouter from 'vue-router';
 
 // our modules
-import RouterMap from './router-map';
+import routes from './routes';
 
 Vue.use(VueRouter);
-Vue.prototype.$RouterMap = RouterMap; // access RouterMap from Vue instance
-
-const routes = Object.values(RouterMap);
 
 const router = new VueRouter({ // ref: http://router.vuejs.org/zh-cn/api/options.html
-    routes,
     mode: 'history',
+    routes,
     base: '/'
 });
 
